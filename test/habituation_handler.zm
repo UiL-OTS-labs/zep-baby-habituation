@@ -1,6 +1,5 @@
 
-import std_audio_device;
-
+import std_sound_output_device;
 
 State habituation_handler
 {
@@ -10,6 +9,7 @@ State habituation_handler
         faces = face_images;
         movie = movie1_frames;
         prepareTestGraphics();
+        attention.enter();
     }
 
     on_event:exit()
@@ -20,13 +20,13 @@ State habituation_handler
         unloadImages();
     }
 
-    on_event()
-    {
-        if (event_code == EVENT_START)
-        {
-            switch_to_state(attention);
-        }
-    }
+//    on_event()
+//    {
+//        if (event_code == EVENT_START)
+//        {
+//            switch_to_state(attention);
+//        }
+//    }
 
     State attention
     {
@@ -36,42 +36,42 @@ State habituation_handler
             arrowSymbolOn(int(FRONT));
         }
 
-        on_event()
-        {
-            if (event_code == EVENT_START)
-            {
-                stopAttentionGetter();
-                startLookingTimeClock(event_time + 5ms);
-                experiment.habituation.beginTrial(event_time + 5ms);
-                switch_to_state(looking);
-            }
-        }
+//        on_event()
+//        {
+//            if (event_code == EVENT_START)
+//            {
+//                stopAttentionGetter();
+//                startLookingTimeClock(event_time + 5ms);
+//                experiment.habituation.beginTrial(event_time + 5ms);
+//                switch_to_state(looking);
+//            }
+//        }
     }
 
     State looking
     {
-        on_event()
-        {
-            if (event_code == EVENT_STOP)
-            {
-                timeout.start(event_time + MAX_LOOK_AWAY_DURATION);
-                stopLookingTimeClock(event_time);
-                switch_to_state(looking_away);
-            }
-        }
+//        on_event()
+//        {
+//            if (event_code == EVENT_STOP)
+//            {
+//                timeout.start(event_time + MAX_LOOK_AWAY_DURATION);
+//                stopLookingTimeClock(event_time);
+//                switch_to_state(looking_away);
+//            }
+//        }
     }
 
     State looking_away
     {
-        on_event()
-        {
-            if (event_code == EVENT_START)
-            {
-                timeout.abort();
-                continueLookingTimeClock(event_time);
-                switch_to_state(looking);
-            }
-        }
+//        on_event()
+//        {
+//            if (event_code == EVENT_START)
+//            {
+//                timeout.abort();
+//                continueLookingTimeClock(event_time);
+//                switch_to_state(looking);
+//            }
+//        }
     }
 
     //---------- timer sound chains
@@ -94,13 +94,13 @@ State habituation_handler
 
         on_event:start()
         {
-            control.show_speaker_icon()
+            control.show_speaker_icon();
         }
 
         on_event:finish()
         {
             control.hide_speaker_icon(FRONT_SIDE | LEFT_SIDE | RIGHT_SIDE);
-            control.update_clock(event.time);
+            control.update_clock(event_time);
             done(CONTINUE);
         }
 

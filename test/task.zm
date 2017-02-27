@@ -1,6 +1,7 @@
 
 import hvf_event;
 import output;
+import habituation_handler;
 import defs;
 
 Block task {
