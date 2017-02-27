@@ -1,0 +1,67 @@
+module pretest_hvf;
+
+State pretest_handler
+{
+    on_entry()
+    {
+	preparePrePostTestGraphics();
+    }
+
+    on_exit()
+    {
+    	stopGridAnimation();
+    	arrowSymbolOff(int(FRONT));
+    	eraseLookingTimeClock();
+    }
+
+    on_event()
+    {
+    	if (event_code == EVENT_START)
+	{
+    	    switch_to_state(attention);
+	}
+    }
+
+    State attention
+    {
+	on_entry()
+	{
+    	    startGridAnimation(now());
+    	    arrowSymbolOn(int(FRONT));
+	}
+
+	on_event()
+	{
+    	    if (event_code == EVENT_START)
+	    {
+		startLookingTimeClock(event_time + 5ms);
+		experiment.pretest.beginTrial(event_time + 5ms);
+    	    	switch_to_state(looking);
+	    }
+	}
+    }
+
+    State looking
+    {
+	on_event()
+	{
+    	    if (event_code == EVENT_STOP)
+	    {
+		stopLookingTimeClock(event_time);
+    	    	switch_to_state(looking_away);
+	    }
+	}
+    }
+
+    State looking_away
+    {
+	on_event()
+	{
+    	    if (event_code == EVENT_START)
+	    {
+		continueLookingTimeClock(event_time);
+    	    	switch_to_state(looking);
+	    }
+	}
+    }
+}

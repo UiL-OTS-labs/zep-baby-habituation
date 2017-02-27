@@ -1,0 +1,33 @@
+
+
+// Single line of output for the familiarization/habituation phase.
+
+enum exp_phase {
+    PHASE_HAB,
+    PHASE_TEST
+};
+
+record TestOutput
+{
+    exp_phase phase;    // the phase of the experiment
+    int     trialnum;   // 
+    int     lt;         // looking time(ms)
+    int     nlt;        // time spend not looking.
+    int     lookaways;  // number of time a child looked away.
+}
+
+TestOutput[..] hab_output;
+TestOutput[..] test_output;
+
+
+void hab_output_append(TestOutput output)
+{
+    hab_output.size = hab_output.size + 1;
+    hab_output[hab_output.size-1] = output;
+}
+
+void test_output_append(TestOutput output)
+{
+    test_output.size = hab_output.size + 1;
+    test_output[hab_output.size-1] = output;
+}

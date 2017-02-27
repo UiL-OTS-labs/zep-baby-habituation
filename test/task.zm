@@ -1,0 +1,286 @@
+
+import hvf_event;
+import output;
+
+Block task {
+
+    on_event:entry()
+    {
+        control.target = this;
+        control.enable_key(KEY_Return, EVENT_START);
+        control.enable_key(' '       , EVENT_START);
+        control.enable_key(KEY_Escape, EVENT_STOP);
+
+        control.button_box.disable_buttons();
+        control.button_box.enable(0, EVENT_START);
+        control.button_box.enable(2, EVENT_STOP);
+    }
+
+    on_event:exit()
+    {
+        control.button_box.disable_buttons();
+    }
+
+    //--------- Habituation -----------
+
+    Block habituation
+    {
+        on_event:entry()
+        {
+
+        }
+
+        on_event:exit()
+        {
+
+        }
+
+        Block trials
+        {
+            on_event:init()
+            {
+                num_items = MAX_HABITUATION_TRIALS;
+            }
+
+            Trial trial
+            {
+                on_event:init()
+                {
+                    habituation_handler.enter(this);
+                }
+
+                on_event:exit()
+                {
+                    TestOutput output;
+                }
+            }
+        }
+    }
+
+
+//    // Test
+//    Part test
+//    {
+//        on_begin()
+//        {
+//            partname = "TEST";
+//            curr_trial = -1;
+//
+//            trials.begin();
+//
+//            showTestStatus();
+//        }
+//
+//        on_end()
+//        {
+//            showBasicStatus();
+//        }
+//
+//        void handle_event(HvfEvent event)
+//        {
+//            if (event_code == EVENT_SOUND_BEGIN)
+//            {
+//                speakerSymbolOn(sound_position);
+//                stampLookingTimeClock(event_time);
+//                if (trialnum != curr_trial)
+//                {
+//                    startFaceImage(0);
+//                    curr_trial = trialnum;
+//                }
+//                logTestEvent(int(EVENT_SOUND_BEGIN), event_time);
+//                showTestStatus();
+//            }
+//            else if (event_code == EVENT_SOUND_END)
+//            {
+//                speakerSymbolOff(sound_position);
+//                stampLookingTimeClock(event_time);
+//                if (trials.item == trials.num_items)
+//                    stopFaceImage();
+//                logTestEvent(int(EVENT_SOUND_END), event_time);
+//                trials.items.timeref = event_time + TEST_ISI;
+//                trials.items.next_item();
+//            }
+//            else if (event_code == EVENT_TERMINATE || 
+//                    event_code == EVENT_ABORT)
+//                terminate;
+//            else
+//                test_handler.handle_event(event_code, event_time);
+//        }
+//
+//        Block trials
+//        {
+//            on_event:entry()
+//            {
+//                num_items = TEST_TRIALS;
+//            }
+//
+//            on_begin()
+//            {
+//                xyindex = (ppgroup == 1 || ppgroup == 3) ? 0 : 1;
+//            }
+//
+//            on_end()
+//            {
+//                test.end();
+//            }
+//
+//            on_pre_item()
+//            {
+//                logTestEventHeader();
+//
+//                trialnum = item + 1;
+//                stimnum = 0;
+//                lookingtime = 0;
+//
+//                audio.play_source = sound.out;
+//
+//                test_handler.enter();
+//            }
+//
+//            on_post_item()
+//            {
+//                stopLookingTimeClock(now());
+//                logTestData();
+//
+//                xyindex = 1 - xyindex;
+//
+//                test_handler.exit();
+//            }
+//
+//            Block items
+//            {
+//                time timeref;
+//
+//                on_init()
+//                {
+//                    num_items = MAX_STIMULI_PER_TRIAL;
+//                }
+//
+//                on_end()
+//                {
+//                    trials.next_item();
+//                }
+//
+//                on_pre_item()
+//                {
+//                    stimnum = item + 1;
+//
+//                    sound.file.file = data_dir() + stimlist[xyindex][5-1];
+//                    sound.start(timeref);
+//                }
+//            }
+//        }
+//
+//        void beginTrial(time t)
+//        {
+//            trials.items.timeref = t;
+//            trials.items.begin();
+//        }
+//
+//        void timedOut(time t)
+//        {
+//            stopFaceImage();
+//            speakerSymbolOff(sound_position);
+//            sound.abort();
+//            logTestEvent(int(EVENT_TIMEOUT), t);
+//            trials.items.end();
+//        }
+//    }
+//
+//
+//    // Post test
+//    //--------------------------------------------------------------------------
+//
+//    Part posttest
+//    {
+//        on_begin()
+//        {
+//            partname = "POST";
+//            posttest_handler.enter();
+//            showPrePostStatus();
+//        }
+//
+//        on_end()
+//        {
+//            stopLookingTimeClock(now());
+//            logPostTestData();
+//            showBasicStatus();
+//
+//            print("! pretest LT=" + format(int(pretest_lt)) + 
+//                    ", posttest LT=" + format(int(lookingtime)) + "\n");
+//            if (lookingtime < pretest_lt * (50.0 / 100.0))
+//                print("! Failed attention criterion.\n\n");
+//            else
+//                print("! Passed attention criterion.\n\n");
+//
+//            posttest_handler.exit();
+//        }
+//
+//        void handle_event(HvfEvent event)
+//        {
+//            if (event_code == EVENT_SOUND_BEGIN)
+//            {
+//                speakerSymbolOn(sound_position);
+//                stampLookingTimeClock(event_time);
+//                logPostTestEvent(int(EVENT_SOUND_BEGIN), event_time);
+//                showPrePostStatus();
+//            }
+//            else if (event_code == EVENT_SOUND_END)
+//            {
+//                speakerSymbolOff(sound_position);
+//                stampLookingTimeClock(event_time);
+//                logPostTestEvent(int(EVENT_SOUND_END), event_time);
+//                items.timeref = event_time + PRETEST_ISI;
+//                items.next_item();
+//            }
+//            else if (event_code == EVENT_TERMINATE || 
+//                    event_code == EVENT_MAIN_CLOSE || 
+//                    event_code == EVENT_ABORT)
+//                terminate;
+//            else
+//                posttest_handler.handle_event(event_code, event_time);
+//        }
+//
+//        Block items
+//        {
+//            time timeref;
+//
+//            on_init()
+//            {
+//                num_items = POSTTEST_STIMULI;
+//            }
+//
+//            on_begin()
+//            {
+//                logPostTestEventHeader();
+//            }
+//
+//            on_end()
+//            {
+//                posttest.end();
+//            }
+//
+//            on_pre_item()
+//            {
+//                stimnum = item + 1;
+//                sound.start(timeref);
+//            }
+//        }
+//
+//        void beginTrial(time t)
+//        {
+//            audio.play_source = sound.out;
+//            sound.file.file = data_dir() + posttest_beep;
+//            sound.file.set_scaling (BEEP_VOLUME);
+//
+//            items.timeref = t;
+//            items.begin();
+//        }
+//    }
+}
+
+
+void action (Part caller)
+{
+    task.enter(caller);
+}

@@ -1,0 +1,22 @@
+
+
+/************************************************************
+ *                                                          *
+ *           0                                2             *
+ *                                                          *
+ *                                                          *
+ *                          1                               *
+ *                                                          *
+ ************************************************************/
+enum ButtonDefs {
+    BUTTON_LEFT = 0,
+    BUTTON_RIGHT = 2
+};
+
+/**
+ * Currently called HvfEvent, but could use a better name.
+ */
+const int EVENT_START           = 0;
+const int EVENT_STOP            = 1;
+const int EVENT_AUDIO_START     = 2;
+const int EVENT_AUDIO_FINISH    = 3;

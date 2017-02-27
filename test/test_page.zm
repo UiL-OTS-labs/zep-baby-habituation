@@ -1,0 +1,111 @@
+
+
+Page testpage
+{
+    color shape_colors [..] = {
+        color:red,
+        color:blue,
+        color:yellow,
+        color:black,
+        color:magnenta,
+        color:aqua,
+        color:white,
+        color:green
+    }
+
+    VerticalLayout layout
+    {
+        on_event:init()
+        {
+            spacing = 50;
+            height = 0;
+            is_visible = true;
+        }
+
+        Canvas canvas
+        {
+            double max_radius;
+
+            on_event:init()
+            {
+                width = 800;
+                height= 800;
+
+                offset_x = width/2;
+                offset_y = height/2;
+
+                max_radius =
+                    canvas.width < canvas.height : canvas.width ? canvas.height;
+                //Hide the canvas frame
+                fill_pattern_color = TEST_PAGE_COLOR;
+
+                // This puts the bullseye in a frame
+                //fill_pattern_color = TEST_PAGE_STIMULUS_COLOR;
+            }
+
+            // Make circle shapes that get smaller and smaller.
+            CirkelShape c0
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 0;
+                fill_pattern_color = colors[0];
+            }
+            CirkelShape c1
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 1;
+                fill_pattern_color = colors[1];
+            }
+            CirkelShape c2
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 2;
+                fill_pattern_color = colors[2];
+            }
+            CirkelShape c3
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 3;
+                fill_pattern_color = colors[3];
+            }
+            CirkelShape c4
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 4;
+                fill_pattern_color = colors[4];
+            }
+            CirkelShape c5
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 5;
+                fill_pattern_color = colors[5];
+            }
+            CirkelShape c6
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 6;
+                fill_pattern_color = colors[6];
+            }
+            CirkelShape c7
+            {
+                x = 0;
+                y = 0;
+                radius = max_radius - max_radius / 8 * 7;
+                fill_pattern_color = colors[7];
+            }
+        }
+    }
+
+    time action(time start, bool shuffle_colors=false)
+    {
+        time tref = test_windows1.show_test_page(this, start);
+        return tref;
+    }
+}

@@ -1,0 +1,28 @@
+module sound_hvf;
+
+int sound_position = LEFT | RIGHT;
+
+AudioDevice audio
+{
+    on_init()
+    {
+    	if (open_out() != 0) terminate;
+    }
+}
+
+SoundChain sound
+{
+    SoundFileIn file {}
+    AudioOut out {}
+
+    on_start()
+    {
+	experiment.handle_event(int(EVENT_SOUND_BEGIN), start_time);
+    }
+
+    on_finish()
+    {
+    	abort();
+	experiment.handle_event(int(EVENT_SOUND_END), finish_time);
+    }
+}

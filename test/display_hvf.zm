@@ -1,0 +1,695 @@
+module display_hvf;
+
+const int ARROW_TOP		= 120;
+const int ARROW_BOTTOM		= 45;
+const int ARROW_WIDTH		= 45;
+const int ARROW_STROKE_WIDTH	= 6;
+const int CIRCLE_DIAM		= 30;
+const int CIRCLE_STROKE_WIDTH	= 4;
+
+Display display
+{
+    on_init()
+    {
+    	if (display.open() != 0) terminate;
+    }
+
+    PrimaryWindow mainwin
+    {
+    	on_init()
+    	{
+	    if (display.num_screens > 1) {
+	    	size = 100;
+	    	position = CENTER;
+	    }
+	    else {
+    	    	geometry = 100, 100, 400, 300;
+//    	    	geometry = 0, 0, 1024, 768;
+	    }
+    	    background = rgbi:0/0/0;
+	    title = "Hybrid Visual Fixation Experiment";
+    	    manage();
+    	}
+
+	on_resize()
+	{
+    	    canvas.resize();
+	}
+
+	on_close()
+	{
+    	    experiment.handle_event(int(EVENT_MAIN_CLOSE), now());
+	}
+
+    	on_key_press()
+	{
+    	    if (input_state & INPUT_STATE_CONTROL)
+	    {
+    		if (input_key == KEY_Escape)
+    		    experiment.handle_event(int(EVENT_TERMINATE), input_time);
+	    }
+	    else if (input_key == KEY_Escape)
+    	    	experiment.handle_event(int(EVENT_STOP), input_time);
+	    else if (input_key == KEY_Return || input_key == KEY_KP_Enter)
+    	    	experiment.handle_event(int(EVENT_START), input_time);
+	    else if (input_key == KEY_F12)
+    	    	experiment.handle_event(int(EVENT_ABORT), input_time);
+	}
+
+    	Canvas canvas
+	{
+    	    int     light_f;	// identifier front light symbol
+    	    int	    light_l;	// identifier left light symbol
+    	    int     light_r;	// identifier right light symbol
+	    int     speaker_f;	// identifier front speaker symbol
+	    int     speaker_l;	// identifier left speaker symbol
+	    int     speaker_r;	// identifier right speaker symbol
+    	    int     status1;	// identifier status line 1
+    	    int     status2;	// identifier status line 2
+    	    int     counter;	// real-time looking time counter
+
+    	    on_init()
+    	    {
+    		size = mainwin.width, mainwin.height;
+		axes_offset = width / 2, 0;
+    	    	background = mainwin.background;
+    	    	manage();
+
+	    	int w = width / 2;
+		int h = (height / 2) - 15;
+
+		light_f = add_triangle(-ARROW_WIDTH, ARROW_BOTTOM,
+    	    	    ARROW_WIDTH, ARROW_BOTTOM,
+		    0, ARROW_TOP);
+		set_line_color(light_f, rgbi:0/128/0);
+		set_fill_color(light_f, rgbi:0/255/0);
+		set_line_width(light_f, ARROW_STROKE_WIDTH);
+		set_draw_mode(light_f, DRAW_STROKE);
+		set_visible(light_f, true);
+
+		light_l = add_triangle(-w + ARROW_TOP, h,
+		    -w + ARROW_BOTTOM, h - ARROW_WIDTH,
+		    -w + ARROW_BOTTOM, h + ARROW_WIDTH);
+		set_line_color(light_l, rgbi:128/0/0);
+		set_fill_color(light_l, rgbi:255/0/0);
+		set_line_width(light_l, ARROW_STROKE_WIDTH);
+		set_draw_mode(light_l, DRAW_STROKE);
+//		set_visible(light_l, true);
+
+		light_r = add_triangle(w - ARROW_TOP, h,
+		    w - ARROW_BOTTOM, h - ARROW_WIDTH,
+		    w - ARROW_BOTTOM, h + ARROW_WIDTH);
+		set_line_color(light_r, rgbi:128/0/0);
+		set_fill_color(light_r, rgbi:255/0/0);
+		set_line_width(light_r, ARROW_STROKE_WIDTH);
+		set_draw_mode(light_r, DRAW_STROKE);
+//		set_visible(light_r, true);
+
+    	    	speaker_f = add_ellipse(3 * ARROW_WIDTH / 2, ARROW_BOTTOM,
+		    CIRCLE_DIAM, CIRCLE_DIAM);
+		set_line_color(speaker_f, rgb:808080);
+		set_line_width(speaker_f, CIRCLE_STROKE_WIDTH);
+		set_fill_color(speaker_f, rgb:FFFF00);
+		set_draw_mode(speaker_f, DRAW_STROKE_FILL);
+
+    	    	speaker_l = add_ellipse(-w + ARROW_BOTTOM, 
+		    h - 3 * ARROW_WIDTH / 2 - CIRCLE_DIAM,
+		    CIRCLE_DIAM, CIRCLE_DIAM);
+		set_line_color(speaker_l, rgb:808080);
+		set_line_width(speaker_l, CIRCLE_STROKE_WIDTH);
+		set_fill_color(speaker_l, rgb:FFFF00);
+		set_draw_mode(speaker_l, DRAW_STROKE_FILL);
+
+    	    	speaker_r = add_ellipse(w - ARROW_BOTTOM, 
+		    h - 3 * ARROW_WIDTH / 2 - CIRCLE_DIAM,
+		    CIRCLE_DIAM, CIRCLE_DIAM);
+		set_line_color(speaker_r, rgb:808080);
+		set_line_width(speaker_r, CIRCLE_STROKE_WIDTH);
+		set_fill_color(speaker_r, rgb:FFFF00);
+		set_draw_mode(speaker_r, DRAW_STROKE_FILL);
+    	    	set_anchor(speaker_r, TOP_RIGHT);
+
+		status1 = add_string(-w + ARROW_BOTTOM, 
+    	    	    height - ARROW_BOTTOM - 50, width * 3 / 4, 50);
+		set_font_num(status1, 1);
+    	    	set_line_color(status1, rgb:FFFFFF);
+    	    	set_alignment(status1, BOTTOM_LEFT);
+    	    	set_anchor(status1, BOTTOM_LEFT);
+    	    	set_visible(status1, true);
+
+		status2 = add_string(-w + ARROW_BOTTOM, 
+		    height - ARROW_BOTTOM, width * 9 / 10, 50);
+		set_font_num(status2, 1);
+    	    	set_line_color(status2, rgb:FFFFFF);
+    	    	set_alignment(status2, BOTTOM_LEFT);
+    	    	set_anchor(status2, BOTTOM_LEFT);
+    	    	set_visible(status2, true);
+
+		counter = add_string(w - ARROW_BOTTOM, 
+    	    	    height - ARROW_BOTTOM - 50, 140, 50);
+		set_font_num(counter, 1);
+    	    	set_line_color(counter, rgb:FFFF00);
+    	    	set_alignment(counter, BOTTOM_RIGHT);
+    	    	set_anchor(counter, BOTTOM_RIGHT);
+    	    	set_visible(counter, true);
+
+		update();
+    	    }
+
+	    void resize()
+	    {
+    		size = mainwin.width, mainwin.height;
+    		axes_offset = width / 2, 0;
+
+		int w = width / 2;
+		int h = (height / 2) - 15;
+
+		set_position(light_l, 0, -w + ARROW_TOP, h);
+		set_position(light_l, 1, -w + ARROW_BOTTOM, h - ARROW_WIDTH);
+		set_position(light_l, 2, -w + ARROW_BOTTOM, h + ARROW_WIDTH);
+
+		set_position(light_r, 0, w - ARROW_TOP, h);
+		set_position(light_r, 1, w - ARROW_BOTTOM, h - ARROW_WIDTH);
+		set_position(light_r, 2, w - ARROW_BOTTOM, h + ARROW_WIDTH);
+
+		set_position(speaker_l, 0, -w + ARROW_BOTTOM, 
+    	    	    h - 3 * ARROW_WIDTH / 2 - CIRCLE_DIAM);
+		set_position(speaker_r, 0, w - ARROW_BOTTOM, 
+		    h - 3 * ARROW_WIDTH / 2 - CIRCLE_DIAM);
+
+		set_width(status1, width * 3 / 4);
+		set_x(status1, 0, -w + ARROW_BOTTOM);
+		set_y(status1, 0, height - ARROW_BOTTOM - 50);
+
+		set_width(status2, width * 9 / 10);
+		set_x(status2, 0, -w + ARROW_BOTTOM);
+		set_y(status2, 0, height - ARROW_BOTTOM);
+
+		set_x(counter, 0, w - ARROW_BOTTOM);
+		set_y(counter, 0, height - ARROW_BOTTOM - 50);
+
+		update();
+	    }
+
+	    void arrowSymbolOn(int pos)
+	    {
+		if (pos & FRONT)
+		    set_draw_mode(light_f, DRAW_STROKE_FILL);
+		if (pos & LEFT)
+		    set_draw_mode(light_l, DRAW_STROKE_FILL);
+		if (pos & RIGHT)
+		    set_draw_mode(light_r, DRAW_STROKE_FILL);
+    		update();
+	    }
+
+	    void arrowSymbolOff(int pos)
+	    {
+		if (pos & FRONT)
+		    set_draw_mode(light_f, DRAW_STROKE);
+		if (pos & LEFT)
+		    set_draw_mode(light_l, DRAW_STROKE);
+		if (pos & RIGHT)
+		    set_draw_mode(light_r, DRAW_STROKE);
+    		update();
+	    }
+
+	    void speakerSymbolOn(int pos)
+	    {
+		if (pos & FRONT)
+    	    	    set_visible(speaker_f, true);
+		if (pos & LEFT)
+    	    	    set_visible(speaker_l, true);
+		if (pos & RIGHT)
+    	    	    set_visible(speaker_r, true);
+    		update();
+	    }
+
+	    void speakerSymbolOff(int pos)
+	    {
+		if (pos & FRONT)
+    	    	    set_visible(speaker_f, false);
+		if (pos & LEFT)
+    	    	    set_visible(speaker_l, false);
+		if (pos & RIGHT)
+    	    	    set_visible(speaker_r, false);
+    		update();
+	    }
+
+    	    void setStatus1(string s)
+	    {
+    		set_text(status1, s);
+    		update();
+	    }
+
+    	    void setStatus2(string s)
+	    {
+    		set_text(status2, s);
+    		update();
+	    }
+
+	    void eraseStatus(string msg="")
+	    {
+		set_text(status1, msg);
+		set_text(status2, "");
+		update();
+	    }
+
+    	}
+    }
+
+    PlainWindow testwin
+    {
+    	on_init()
+    	{
+	    if (display.num_screens > 1) {
+    	    	size = 100;
+	    	position = CENTER;
+		if (display.num_screens == 2)
+	    	    screen = 1;
+		else
+	    	    screen = 1;  // Whichever is the target screen.
+//	    	    screen = 2;  // Whichever is the target screen.
+	    }
+	    else {
+//    	    	size = 50;
+    	    	geometry = 0, 0, 1024, 768;
+	    	position = BOTTOM_RIGHT;
+	    }
+    	    background = rgbi:0/0/0;
+    	    manage();
+    	}
+
+    	Canvas canvas
+	{
+	    int[..]	graphics;
+    	    int		BOX_WIDTH;
+    	    int		BOX_HEIGHT;
+    	    int		framenum;
+    	    bool	reverse;
+
+    	    on_init()
+    	    {
+    		size = testwin.width, testwin.height;
+		axes_offset = width / 2, height / 2;
+    	    	background = testwin.background;
+		background = rgb:BAD6EB;
+    	    	manage();
+
+		is_buffered = true;
+		update();
+    	    }
+
+    	    void removeGraphics()
+	    {
+    	    	int n;
+    	    	while (n < graphics.size) {
+		    remove(graphics[n]);
+		    n++;
+		}
+		graphics.size  = 0;
+		update();
+	    }
+
+    	    void showGraphics()
+	    {
+    	    	int n;
+    	    	while (n < graphics.size) {
+		    set_visible(graphics[n], true);
+		    n++;
+		}
+		update();
+	    }
+
+    	    void hideGraphics()
+	    {
+    	    	int n;
+    	    	while (n < graphics.size) {
+		    set_visible(graphics[n], false);
+		    n++;
+		}
+		update();
+	    }
+
+    	    void preparePrePostTestGraphics()
+	    {
+		BOX_WIDTH = width / 3;
+		BOX_HEIGHT = height / 3;
+
+    		removeGraphics();
+    		graphics.size = 3;
+
+    		int n;
+		while (n < 3) {
+    	    	    graphics[n] = add_image(0, 0, BOX_WIDTH, BOX_HEIGHT);
+		    set_fill_color(graphics[n], rgb:BAD6EB);
+		    set_draw_mode(graphics[n], DRAW_FILL);
+		    set_anchor(graphics[n], CENTER);
+		    set_image_num(graphics[n], n);
+		    n++;
+		}
+	    }
+
+    	    void startGridAnimation(time t)
+	    {
+    	    	background = rgb:BAD6EB;
+		nextGridScene();
+		showGraphics();
+		gridtimer.start(t + ANIM_REFRESH_PERIOD);
+	    }
+
+    	    void stopGridAnimation()
+	    {
+		gridtimer.abort();
+		hideGraphics();
+	    }
+
+    	    void nextGridScene()
+	    {
+		int x;
+		int y;
+
+    	    	randomizeList(animation_images);
+    	    	display.load_image(0, zep_data_dir() + animation_images[0]);
+    	    	display.load_image(1, zep_data_dir() + animation_images[1]);
+    	    	display.load_image(2, zep_data_dir() + animation_images[2]);
+
+		x = random(-1, 3) * BOX_WIDTH;
+		y = - BOX_HEIGHT;
+		set_position(graphics[0], 0, x, y);
+		set_size(graphics[0], 
+		    display.image_width(0), display.image_height(0));
+		force_redraw(graphics[0]);
+
+		x = random(-1, 3) * BOX_WIDTH;
+		y = 0;
+		set_position(graphics[1], 0, x, y);
+		set_size(graphics[1], 
+		    display.image_width(1), display.image_height(1));
+		force_redraw(graphics[1]);
+
+		x = random(-1, 3) * BOX_WIDTH;
+		y = BOX_HEIGHT;
+		set_position(graphics[2], 0, x, y);
+		set_size(graphics[2], 
+		    display.image_width(2), display.image_height(2));
+		force_redraw(graphics[2]);
+
+		update();
+	    }
+
+	    Timer gridtimer
+	    {
+		on_expire()
+		{
+		    canvas.nextGridScene();
+		    start(expire_time + ANIM_REFRESH_PERIOD);
+		}
+	    }
+
+    	    void prepareTestGraphics()
+	    {
+	    	int i;
+	    	int n;
+		while (n < faces.size)
+    	    	    display.load_image(i++, data_dir() + faces[n++]);
+	    	n = 0;
+    	    	while (n < movie.size)
+    	    	    display.load_image(i++, data_dir() + movie[n++]);
+
+    		removeGraphics();
+    		graphics.size = 1;
+
+    	    	graphics[0] = add_image(0, 0, 640, 480);
+//		set_fill_color(graphics[0], rgb:000000);
+		set_fill_color(graphics[0], rgb:BAD6EB);
+		set_draw_mode(graphics[0], DRAW_FILL);
+		set_anchor(graphics[0], CENTER);
+		set_image_num(graphics[0], 0);
+	    }
+
+    	    void unloadImages()
+	    {
+	    	int n;
+		while (n < display.image_pool_size)
+    	    	    display.unload_image(n++);
+    		removeGraphics();
+	    }
+
+    	    void startAttentionGetter(time t)
+	    {
+    	    	background = rgb:000000;
+    	    	framenum = -1;
+		reverse = false;
+		nextAttentionGetterFrame();
+		showGraphics();
+		frametimer.start(t + MOVIE_FRAME_REFRESH_PERIOD);
+	    }
+
+    	    void stopAttentionGetter()
+	    {
+		frametimer.abort();
+		hideGraphics();
+	    }
+
+    	    void startFaceImage(int num)
+	    {
+    	    	set_image_num(graphics[0], num);
+		set_position(graphics[0], 0, 0, 0);
+		set_size(graphics[0], 
+		    display.image_width(num), display.image_height(num));
+		force_redraw(graphics[0]);
+		update();
+		showGraphics();
+	    }
+
+    	    void stopFaceImage()
+	    {
+    	    	hideGraphics();
+	    }
+
+    	    void nextAttentionGetterFrame()
+	    {
+	    	if (reverse)
+		{
+	    	    if (--framenum < 0)
+		    {
+			reverse = false;
+		    	framenum = 1;
+		    }
+		}
+		else
+		{
+	    	    if (++framenum >= movie.size)
+		    {
+			reverse = true;
+		    	framenum -= 2;
+		    }
+		}
+		int fr = framenum + faces.size;
+    	    	set_image_num(graphics[0], fr);
+		set_position(graphics[0], 0, 0, 0);
+		set_size(graphics[0], 
+		    display.image_width(fr), display.image_height(fr));
+		force_redraw(graphics[0]);
+		update();
+	    }
+
+	    Timer frametimer 
+	    {
+		on_expire()
+		{
+		    canvas.nextAttentionGetterFrame();
+		    start(expire_time + MOVIE_FRAME_REFRESH_PERIOD);
+		}
+	    }
+
+    	}
+    }
+}
+
+//-------------------------------------------------------------------------------
+
+void arrowSymbolOn(int pos)
+{
+    display.mainwin.canvas.arrowSymbolOn(pos);
+}
+
+void arrowSymbolOff(int pos)
+{
+    display.mainwin.canvas.arrowSymbolOff(pos);
+}
+
+void speakerSymbolOn(int pos)
+{
+    display.mainwin.canvas.speakerSymbolOn(pos);
+}
+
+void speakerSymbolOff(int pos)
+{
+    display.mainwin.canvas.speakerSymbolOff(pos);
+}
+
+void setStatus1(string s)
+{
+    display.mainwin.canvas.setStatus1(s);
+}
+
+void setStatus2(string s)
+{
+    display.mainwin.canvas.setStatus2(s);
+}
+
+void eraseStatus(string msg="")
+{
+    display.mainwin.canvas.eraseStatus(msg);
+}
+
+void removeGraphics()
+{
+    display.testwin.canvas.removeGraphics();
+}
+
+void showGraphics()
+{
+    display.testwin.canvas.showGraphics();
+}
+
+void hideGraphics()
+{
+    display.testwin.canvas.hideGraphics();
+}
+
+void preparePrePostTestGraphics()
+{
+    display.testwin.canvas.preparePrePostTestGraphics();
+}
+
+void startGridAnimation(time t)
+{
+    display.testwin.canvas.startGridAnimation(t);
+}
+
+void stopGridAnimation()
+{
+    display.testwin.canvas.stopGridAnimation();
+}
+
+void prepareTestGraphics()
+{
+    display.testwin.canvas.prepareTestGraphics();
+}
+
+void unloadImages()
+{
+    display.testwin.canvas.unloadImages();
+}
+
+void startAttentionGetter(time t)
+{
+    display.testwin.canvas.startAttentionGetter(t);
+}
+
+void stopAttentionGetter()
+{
+    display.testwin.canvas.stopAttentionGetter();
+}
+
+void startFaceImage(int num)
+{
+    display.testwin.canvas.startFaceImage(num);
+}
+
+void stopFaceImage()
+{
+    display.testwin.canvas.stopFaceImage();
+}
+
+//-------------------------------------------------------------------------------
+
+Timer clock
+{
+    time    cumtime;
+    time    timeref;
+
+    void startClock(time t, time cum=0s)
+    {
+    	timeref = t;
+	cumtime = cum;
+    	display.mainwin.canvas.set_text(display.mainwin.canvas.counter,
+	    format(int(cumtime)));
+	display.mainwin.canvas.update();
+	start(t);
+    }
+
+    void stopClock(time t)
+    {
+    	if (is_running) {
+    	    abort();
+    	    cumtime += t - timeref;
+    	    display.mainwin.canvas.set_text(display.mainwin.canvas.counter,
+	    	format(int(cumtime)));
+	    display.mainwin.canvas.update();
+	}
+    }
+
+    void stampClock(time t)
+    {
+    	if (is_running) {
+    	    cumtime += t - timeref;
+    	    timeref = t;
+	}
+    }
+
+    void continueClock(time t)
+    {
+    	timeref = t;
+	start(t + CLOCK_UPDATE_PERIOD);
+    }
+
+    void eraseClock()
+    {
+    	abort();
+	display.mainwin.canvas.set_text(display.mainwin.canvas.counter, "");
+	display.mainwin.canvas.update();
+    }
+
+    on_expire()
+    {
+    	cumtime += expire_time - timeref;
+    	timeref = expire_time;
+    	display.mainwin.canvas.set_text(display.mainwin.canvas.counter,
+	    format(int(cumtime)));
+	display.mainwin.canvas.update();
+    	start(expire_time + CLOCK_UPDATE_PERIOD);
+    }
+}
+
+//-------------------------------------------------------------------------------
+
+void startLookingTimeClock(time t, time cum=0s)
+{
+    clock.startClock(t, cum);
+    lookingtime = clock.cumtime;
+}
+
+void stopLookingTimeClock(time t)
+{
+    clock.stopClock(t);
+    lookingtime = clock.cumtime;
+}
+
+void stampLookingTimeClock(time t)
+{
+    clock.stampClock(t);
+    lookingtime = clock.cumtime;
+}
+
+void continueLookingTimeClock(time t)
+{
+    clock.continueClock(t);
+}
+
+void eraseLookingTimeClock()
+{
+    clock.eraseClock();
+}
