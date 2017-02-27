@@ -1,6 +1,7 @@
 
 import hvf_event;
 import output;
+import defs;
 
 Block task {
 
@@ -12,8 +13,8 @@ Block task {
         control.enable_key(KEY_Escape, EVENT_STOP);
 
         control.button_box.disable_buttons();
-        control.button_box.enable(0, EVENT_START);
-        control.button_box.enable(2, EVENT_STOP);
+        control.button_box.enable_button(int(BUTTON_LEFT), EVENT_START);
+        control.button_box.enable_button(int(BUTTON_RIGHT), EVENT_STOP);
     }
 
     on_event:exit()
@@ -52,6 +53,15 @@ Block task {
                 on_event:exit()
                 {
                     TestOutput output;
+                }
+            }
+
+            TransientPart test_hab_done
+            {
+                on_event:entry()
+                {
+                    if (habituation_done())
+                        trials.leave();
                 }
             }
         }
