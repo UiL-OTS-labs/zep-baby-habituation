@@ -1,0 +1,15 @@
+
+
+enum TestGroup
+{
+    MONO_LINGUAL,
+    BI_LINUGAL
+}
+
+int assign_participant_to_group()
+{
+    if(select_group_from_participant_id() != OK)
+        select_group_random();
+
+    return OK;
+}

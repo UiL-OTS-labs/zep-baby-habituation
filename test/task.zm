@@ -2,21 +2,22 @@
 import hvf_event;
 import defs;
 import output;
-import habituation_handler;
+//import habituation_handler;
+import attention_page;
 import stimuli;
 
-Block task {
-
+Block task
+{
     on_event:entry()
     {
         control.target = this;
-        control.enable_key(KEY_Return, EVENT_START);
-        control.enable_key(' '       , EVENT_START);
-        control.enable_key(KEY_Escape, EVENT_STOP);
+        control.enable_key(KEY_Return, EVENT_START_LOOKING);
+        control.enable_key(' '       , EVENT_START_LOOKING);
+        control.enable_key(KEY_Escape, EVENT_STOP_LOOKING);
 
         control.button_box.disable_buttons();
-        control.button_box.enable_button(int(BUTTON_LEFT), EVENT_START);
-        control.button_box.enable_button(int(BUTTON_RIGHT), EVENT_STOP);
+        control.button_box.enable_button(int(BUTTON_LEFT), EVENT_STOP_LOOKING);
+        control.button_box.enable_button(int(BUTTON_RIGHT),EVENT_START_LOOKING);
     }
 
     on_event:exit()
@@ -30,31 +31,47 @@ Block task {
     {
         on_event:entry()
         {
-
+            //habituation_handler.setup();
+            attention_page.setup();
         }
 
         on_event:exit()
         {
-
+            save_habituation();
         }
+
 
         Block trials
         {
-            on_event:init()
+            on_event:entry()
             {
-                num_items = MAX_HABITUATION_TRIALS;
+                num_cycles = MAX_HABITUATION_TRIALS;
+            }
+
+            Trial grab_attention
+            {
+                on_event:entry()
+                {
+                    attention_page.action(reference_time);
+                }
             }
 
             Trial trial
             {
-                on_event:init()
+                on_event:entry()
                 {
-                    habituation_handler.enter(this);
+                    test_page.action(
+                            this,
+                            reference_time,
+                            test_items[cycle % test_items.size]
+                            );
                 }
-
+                
                 on_event:exit()
                 {
                     TestOutput output;
+                    output.
+                    hab_output_append(output);
                 }
             }
 

@@ -1,0 +1,48 @@
+
+
+enum ItemType {
+    HABITUTATION,
+    NOVEL,
+}
+
+record TestItem {
+    int         id;
+    ItemType    type;
+    string      snd_fn;
+}
+
+
+TestItem[..][..] hab_items = {
+    {
+        {1,     HABITUTATION, "bep1"},
+        {2,     HABITUTATION, "bep2"},
+        {3,     HABITUTATION, "bep3"},
+        {4,     HABITUTATION, "bep4"},
+        {5,     HABITUTATION, "bep5"}
+    },
+    {
+        {1,     HABITUTATION, "bip1"},
+        {2,     HABITUTATION, "bip2"},
+        {3,     HABITUTATION, "bip3"},
+        {4,     HABITUTATION, "bip4"},
+        {5,     HABITUTATION, "bip5"}
+    }
+};
+
+TestItem[..][..] test_items = {
+    {
+        {1,     HABITUTATION, "bip1"},
+        {2,     HABITUTATION, "bip2"},
+        {3,     HABITUTATION, "bip3"},
+        {4,     HABITUTATION, "bip4"},
+        {5,     HABITUTATION, "bip5"}
+    },
+    {
+        {1,     HABITUTATION, "bep1"},
+        {2,     HABITUTATION, "bep2"},
+        {3,     HABITUTATION, "bep3"},
+        {4,     HABITUTATION, "bep4"},
+        {5,     HABITUTATION, "bep5"}
+    }
+};
+

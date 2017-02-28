@@ -1,16 +1,82 @@
 
+color shape_colors [..] = {
+    color:red,
+    color:blue,
+    color:yellow,
+    color:black,
+    color:magnenta,
+    color:aqua,
+    color:white,
+    color:green
+}
 
 Page testpage
 {
-    color shape_colors [..] = {
-        color:red,
-        color:blue,
-        color:yellow,
-        color:black,
-        color:magnenta,
-        color:aqua,
-        color:white,
-        color:green
+
+    TestItem item;
+
+    // This timer is started at the beginning of a trial if it is fired
+    // the trial ends because of maximum trial duration is called.
+    Timer max_trial_dur_timer {
+
+        on_event:expire()
+        {
+
+        }
+
+    }
+    
+    // Pressing the left button on the button box starts this timer
+    // if the timer expires the trial will be aborted.
+    Timer abort_trial_timer{
+
+        on_event:expire()
+        {
+        }
+
+    }
+
+    Response response
+    {
+        bool    is_looking;
+        time    lookstart;
+        time    nolookstart;
+        dur     cumlt;
+        dur     cumnlt;
+
+        on_event:start()
+        {
+            clear();
+            lookstart = event_time;
+            // assume the child is looking.
+            is_looking = true;
+        }
+
+        void clear()
+        {
+            lookstart   = 0;
+            nolookstart = 0;
+            cumlt       = 0ms;
+            cumnlt      = 0ms;
+            is_looking = true;
+        }
+
+        void process_hit(time t, HvfEvent event)
+        {
+            HitType validity = hit(t);
+            if (validity == HIT_VALID) {
+                if (event == EVENT_START) { // start abort timer
+                    is_looking = false;
+                    nolookstart = t;
+                    cumlt += (t - lookstart)
+                }
+                else if (event == EVENT_STOP) {
+                    is_looking = false;
+                    nolookstart = t;
+                    cumlt += (t - lookstart)
+                }
+            }
+        }
     }
 
     VerticalLayout layout
