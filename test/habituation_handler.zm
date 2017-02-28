@@ -3,6 +3,9 @@ import std_sound_output_device;
 
 State habituation_handler
 {
+
+    TestItem item;
+
     // states
     on_event:entry()
     {
@@ -30,7 +33,7 @@ State habituation_handler
 
     State attention
     {
-        on_entry()
+        on_event:entry()
         {
             startAttentionGetter(now());
             arrowSymbolOn(int(FRONT));
@@ -78,7 +81,7 @@ State habituation_handler
 
     Timer timeout
     {
-        on_expire()
+        on_event:expire()
         {
             stopLookingTimeClock(expire_time);
             experiment.habituation.timedOut(expire_time);

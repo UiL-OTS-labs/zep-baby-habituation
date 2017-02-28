@@ -2,19 +2,20 @@
 // definitions in the experiment these are constant values used throughout
 // the experiment.
 
-const time POSTTEST_ISI                 = 1000ms;
+
+const dur  POSTTEST_ISI                 = 1000ms;
 const int  POSTTEST_STIMULI             = 20;
 
-const time TEST_ISI                     = 1000ms;
+const dur  TEST_ISI                     = 1000ms;
 const int  TEST_TRIALS                  = 8;
 const real HABITUATION_CRITERION	    = 65.0;
 const int  MAX_HABITUATION_TRIALS	    = 12;
 const int  MAX_STIMULI_PER_TRIAL	    = 30;
-const time MAX_LOOK_AWAY_DURATION	    = 2000ms;
+const dur  MAX_LOOK_AWAY_DURATION	    = 2000ms;
 
-const time ANIM_REFRESH_PERIOD		    = 2000ms;
-const time MOVIE_FRAME_REFRESH_PERIOD   = 100ms;
-const time CLOCK_UPDATE_PERIOD          = 20ms;
+const dur  ANIM_REFRESH_PERIOD		    = 2000ms;
+const dur  MOVIE_FRAME_REFRESH_PERIOD   = 100ms;
+const dur  CLOCK_UPDATE_PERIOD          = 20ms;
 
 const real BEEP_VOLUME                  = 0.1;
 

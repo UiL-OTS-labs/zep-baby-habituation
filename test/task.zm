@@ -1,8 +1,9 @@
 
 import hvf_event;
+import defs;
 import output;
 import habituation_handler;
-import defs;
+import stimuli;
 
 Block task {
 
