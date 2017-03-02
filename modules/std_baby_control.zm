@@ -143,16 +143,16 @@ Page control
     {
         // See also ButtonBox object below.
         bool handled;
-        if (input_modifiers == 0 && state >= CONTROL_RUNNING && 
-            keymap.size > 0 && target != null)
-        {
-            int i = find_key(int(input_key));
-            if (i >= 0)
-            {
-                signal_target(keymap[i].code);
-                handled = true;
-            }
-        }
+//        if (input_modifiers == 0 && state >= CONTROL_RUNNING && 
+//            keymap.size > 0 && target != null)
+//        {
+//            int i = find_key(int(input_key));
+//            if (i >= 0)
+//            {
+//                signal_target(keymap[i].code);
+//                handled = true;
+//            }
+//        }
 
         if (!handled) handle_special_key(this, input_key, input_modifiers);
     }
@@ -2290,9 +2290,9 @@ Page control
         clock.abort();
         clock.state = CLOCK_READY;
         clock.released = release;
-	clock.timestamps.size = 0;
+        clock.timestamps.size = 0;
         clock.duration = 0s;
-	clock.total_runtime = 0s;
+        clock.total_runtime = 0s;
         layout.canvas.counter.text = "0";
         hide_counter_active();
     }
@@ -2304,24 +2304,24 @@ Page control
         {
             if (clock.released)
             {
-	    	clock.timestamps.size = clock.timestamps.size + 1;
-	    	clock.timestamps[clock.timestamps.size-1] = t;
+                clock.timestamps.size = clock.timestamps.size + 1;
+                clock.timestamps[clock.timestamps.size-1] = t;
 
                 clock.abort();
                 clock.duration += t - clock.timeref;
-		clock.total_runtime = t - clock.timestamps[0];
+                clock.total_runtime = t - clock.timestamps[0];
 
                 layout.canvas.counter.text = string(int(clock.duration));
                 hide_counter_active();
             }
         }
-	else if (clock.state == CLOCK_PAUSED)
+        else if (clock.state == CLOCK_PAUSED)
         {
             if (clock.released)
             {
-	    	clock.timestamps.size = clock.timestamps.size + 1;
-	    	clock.timestamps[clock.timestamps.size-1] = t;
-		clock.total_runtime = t - clock.timestamps[0];
+                clock.timestamps.size = clock.timestamps.size + 1;
+                clock.timestamps[clock.timestamps.size-1] = t;
+                clock.total_runtime = t - clock.timestamps[0];
             }
         }
         clock.state = CLOCK_FINISHED;
@@ -2342,10 +2342,10 @@ Page control
 
     void reset_clock()
     {
-    	erase_clock();
-	clock.timestamps.size = 0;
+        erase_clock();
+        clock.timestamps.size = 0;
         clock.duration = 0s;
-	clock.total_runtime = 0s;
+        clock.total_runtime = 0s;
     }
 
 
@@ -2357,8 +2357,8 @@ Page control
 
         if (clock.state == CLOCK_RUNNING)
         {
-	    clock.timestamps.size = clock.timestamps.size + 1;
-	    clock.timestamps[clock.timestamps.size-1] = t;
+            clock.timestamps.size = clock.timestamps.size + 1;
+            clock.timestamps[clock.timestamps.size-1] = t;
 
             clock.timeref = t;
             clock.start(t + 100ms);
@@ -2374,8 +2374,8 @@ Page control
             clock.state = CLOCK_RUNNING;
             if (clock.released)
             {
-	    	clock.timestamps.size = clock.timestamps.size + 1;
-	    	clock.timestamps[clock.timestamps.size-1] = t;
+                clock.timestamps.size = clock.timestamps.size + 1;
+                clock.timestamps[clock.timestamps.size-1] = t;
 
                 clock.timeref = t;
                 clock.start(t + 100ms);
@@ -2394,8 +2394,8 @@ Page control
             clock.state = CLOCK_PAUSED;
             if (clock.released)
             {
-		clock.timestamps.size = clock.timestamps.size + 1;
-	    	clock.timestamps[clock.timestamps.size-1] = t;
+                clock.timestamps.size = clock.timestamps.size + 1;
+                clock.timestamps[clock.timestamps.size-1] = t;
 
                 clock.abort();
                 clock.duration += t - clock.timeref;

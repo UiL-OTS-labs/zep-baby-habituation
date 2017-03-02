@@ -7,11 +7,15 @@ const dur  POSTTEST_ISI                 = 1000ms;
 const int  POSTTEST_STIMULI             = 20;
 
 const dur  TEST_ISI                     = 1000ms;
-const int  TEST_TRIALS                  = 8;
+//const int  TEST_TRIALS                  = 8;
+const int  MAX_TEST_TRIALS              = 2;        // Max number of test trials
+                                                    // if <= 0 the number
+                                                    // of test items.
 const real HABITUATION_CRITERION	    = 65.0;
 const int  MAX_HABITUATION_TRIALS	    = 12;
 const int  MAX_STIMULI_PER_TRIAL	    = 30;
 const dur  MAX_LOOK_AWAY_DURATION	    = 2000ms;
+const dur  MAX_TRIAL_DURATION           = 45s;
 
 const dur  ANIM_REFRESH_PERIOD		    = 2000ms;
 const dur  MOVIE_FRAME_REFRESH_PERIOD   = 100ms;

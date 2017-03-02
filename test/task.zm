@@ -3,21 +3,28 @@ import hvf_event;
 import defs;
 import output;
 //import habituation_handler;
+
+import test_page;
 import attention_page;
 import stimuli;
 
 Block task
 {
+    int nth_list;
+
     on_event:entry()
     {
         control.target = this;
-        control.enable_key(KEY_Return, EVENT_START_LOOKING);
-        control.enable_key(' '       , EVENT_START_LOOKING);
-        control.enable_key(KEY_Escape, EVENT_STOP_LOOKING);
+
+        control.enable_key(KEY_Return, EVENT_STOP_LOOKING);
+        control.enable_key(' '       , EVENT_STOP_LOOKING);
+        control.enable_key(KEY_Escape, EVENT_START_LOOKING);
 
         control.button_box.disable_buttons();
         control.button_box.enable_button(int(BUTTON_LEFT), EVENT_STOP_LOOKING);
         control.button_box.enable_button(int(BUTTON_RIGHT),EVENT_START_LOOKING);
+
+        nth_list = int(selected_group)/2; 
     }
 
     on_event:exit()
@@ -48,30 +55,41 @@ Block task
                 num_cycles = MAX_HABITUATION_TRIALS;
             }
 
-            Trial grab_attention
-            {
-                on_event:entry()
-                {
-                    attention_page.action(reference_time);
-                }
-            }
+//            Trial grab_attention
+//            {
+//                on_event:entry()
+//                {
+//                    attention_page.action(this, reference_time);
+//                }
+//            }
 
             Trial trial
             {
+                TestItem item;
+
                 on_event:entry()
                 {
+                    item = hab_items[nth_list][trials.cycle % hab_items.size];
                     test_page.action(
                             this,
                             reference_time,
-                            test_items[cycle % test_items.size]
+                            item
                             );
+                    control.set_status("Habituation " + string(cycle));
                 }
                 
                 on_event:exit()
                 {
                     TestOutput output;
-                    output.
-                    hab_output_append(output);
+                    output.trialnum = trials.cycle + 1;
+                    output.id       = item.id;
+                    output.lt       = int(test_page.response.cumlt);
+                    output.nlt      = int(test_page.response.cumnlt);
+                    output.lookaways= test_page.response.nlookaways;
+
+                    StimOutput soutput;
+                    soutput.stimulus = item.snd_fn;
+                    hab_output_append(output, soutput);
                 }
             }
 
@@ -86,6 +104,69 @@ Block task
         }
     }
 
+    Block test
+    {
+        on_event:entry()
+        {
+            //habituation_handler.setup();
+            attention_page.setup();
+        }
+
+        on_event:exit()
+        {
+            save_test();
+        }
+
+
+        Block trials
+        {
+            on_event:entry()
+            {
+                if (MAX_TEST_TRIALS <= 0)
+                    num_cycles = test_items[nth_list].size;
+                else
+                    num_cycles = MAX_TEST_TRIALS;
+            }
+
+//            Trial grab_attention
+//            {
+//                on_event:entry()
+//                {
+//                    attention_page.action(this, reference_time);
+//                }
+//            }
+
+            Trial trial
+            {
+                TestItem item;
+
+                on_event:entry()
+                {
+                    item = test_items[nth_list][trials.cycle];
+                    test_page.action(
+                            this,
+                            reference_time,
+                            item
+                            );
+                    control.set_status("Test " + string(trials.cycle));
+                }
+                
+                on_event:exit()
+                {
+                    TestOutput output;
+                    output.trialnum = trials.cycle + 1;
+                    output.id       = item.id;
+                    output.lt       = int(test_page.response.cumlt);
+                    output.nlt      = int(test_page.response.cumnlt);
+
+                    StimOutput soutput;
+                    soutput.stimulus = item.snd_fn;
+                    test_output_append(output, soutput);
+
+                }
+            }
+        }
+    }
 
 //    // Test
 //    Part test

@@ -11,22 +11,43 @@ record TestOutput
 {
     exp_phase phase;    // the phase of the experiment
     int     trialnum;   // 
+    int     id;         // 
     int     lt;         // looking time(ms)
     int     nlt;        // time spend not looking.
     int     lookaways;  // number of time a child looked away.
 }
 
+record StimOutput
+{
+    string stimulus;
+}
+
 TestOutput[..] hab_output;
+StimOutput[..] hab_stim_output;
 TestOutput[..] test_output;
+StimOutput[..] test_stim_output;
 
 
-void hab_output_append(TestOutput output)
+void hab_output_append(TestOutput output, StimOutput soutput)
 {
     hab_output.size = hab_output.size + 1;
     hab_output[hab_output.size-1] = output;
+    hab_stim_output.size = hab_stim_output.size + 1;
+    hab_stim_output[hab_stim_output.size - 1] = soutput;
 }
 
-// is called from task.zm to check whether the infant has habituation.
+void save_habituation()
+{
+    string fn = expdb.experiment.session.create_table("habituation", 1);
+    hab_output.save(fn, "Habituation results");
+    hab_output.size = 0;
+    
+    fn = expdb.experiment.session.create_table("habituation_stim", 1);
+    hab_stim_output.save(fn, "Presented habituation stimuli");
+    hab_stim_output.size = 0;
+}
+
+// is called from task.zm to check whether the infant has habituated.
 bool habituation_done()
 {
     if (hab_output.size < 4)
@@ -43,8 +64,21 @@ bool habituation_done()
     return mean_first3 * 0.65 > mean_last3;
 }
 
-void test_output_append(TestOutput output)
+void test_output_append(TestOutput output, StimOutput soutput)
 {
-    test_output.size = hab_output.size + 1;
-    test_output[hab_output.size-1] = output;
+    test_output.size = test_output.size + 1;
+    test_output[test_output.size-1] = output;
+    test_stim_output.size = test_stim_output.size + 1;
+    test_stim_output[test_stim_output.size - 1] = soutput;
+}
+
+void save_test()
+{
+    string fn = expdb.experiment.session.create_table("test", 1);
+    test_output.save(fn, "test results");
+    test_output.size = 0;
+    
+    fn = expdb.experiment.session.create_table("test_stim", 1);
+    test_stim_output.save(fn, "Presented test stimuli");
+    test_stim_output.size = 0;
 }

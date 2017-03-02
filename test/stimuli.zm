@@ -1,48 +1,72 @@
 
 
-enum ItemType {
-    HABITUTATION,
+enum ItemType
+{
+    HABITUATION,
     NOVEL,
 }
 
-record TestItem {
+record TestItem
+{
     int         id;
     ItemType    type;
     string      snd_fn;
 }
 
 
-TestItem[..][..] hab_items = {
-    {
-        {1,     HABITUTATION, "bep1"},
-        {2,     HABITUTATION, "bep2"},
-        {3,     HABITUTATION, "bep3"},
-        {4,     HABITUTATION, "bep4"},
-        {5,     HABITUTATION, "bep5"}
+TestItem[..][..] hab_items =
+{
+    { // LIST 1
+        {1, HABITUATION, "bep1"},
+        {2, HABITUATION, "bep2"},
+        {3, HABITUATION, "bep3"},
+        {4, HABITUATION, "bep4"},
+        {5, HABITUATION, "bep5"}
     },
-    {
-        {1,     HABITUTATION, "bip1"},
-        {2,     HABITUTATION, "bip2"},
-        {3,     HABITUTATION, "bip3"},
-        {4,     HABITUTATION, "bip4"},
-        {5,     HABITUTATION, "bip5"}
+    { // LIST 2
+        {1, HABITUATION, "bip1"},
+        {2, HABITUATION, "bip2"},
+        {3, HABITUATION, "bip3"},
+        {4, HABITUATION, "bip4"},
+        {5, HABITUATION, "bip5"}
     }
 };
 
-TestItem[..][..] test_items = {
+void shuffle_hab_items()
+{
+    int i;
+    while (i < hab_items.size)
     {
-        {1,     HABITUTATION, "bip1"},
-        {2,     HABITUTATION, "bip2"},
-        {3,     HABITUTATION, "bip3"},
-        {4,     HABITUTATION, "bip4"},
-        {5,     HABITUTATION, "bip5"}
+        hab_items[i].shuffle(0, hab_items[i].size);
+        i++;
+    }
+}
+
+TestItem[..][..] test_items =
+{
+    { // List 1
+        {1, NOVEL, "bip1"},
+        {2, NOVEL, "bip2"},
+        {3, NOVEL, "bip3"},
+        {4, NOVEL, "bip4"},
+        {5, NOVEL, "bip5"}
     },
-    {
-        {1,     HABITUTATION, "bep1"},
-        {2,     HABITUTATION, "bep2"},
-        {3,     HABITUTATION, "bep3"},
-        {4,     HABITUTATION, "bep4"},
-        {5,     HABITUTATION, "bep5"}
+    { // List 2
+        {1, NOVEL, "bep1"},
+        {2, NOVEL, "bep2"},
+        {3, NOVEL, "bep3"},
+        {4, NOVEL, "bep4"},
+        {5, NOVEL, "bep5"}
     }
 };
+
+void shuffle_test_items()
+{
+    int i;
+    while (i < test_items.size)
+    {
+        test_items[i].shuffle(0, test_items[i].size);
+        i++;
+    }
+}
 

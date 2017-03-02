@@ -1,19 +1,22 @@
 
-color shape_colors [..] = {
+color[..] shape_colors =
+{
     color:red,
     color:blue,
     color:yellow,
     color:black,
-    color:magnenta,
+    color:magenta,
     color:aqua,
     color:white,
     color:green
-}
+};
 
-Page testpage
+
+Page test_page
 {
 
     TestItem item;
+    Object   caller;
 
     // This timer is started at the beginning of a trial if it is fired
     // the trial ends because of maximum trial duration is called.
@@ -21,7 +24,7 @@ Page testpage
 
         on_event:expire()
         {
-
+            response.process_hit(event_time, EVENT_STOP_TIMER);
         }
 
     }
@@ -32,8 +35,26 @@ Page testpage
 
         on_event:expire()
         {
+            response.process_hit(event_time, EVENT_STOP_TIMER);
         }
 
+    }
+
+    on_event:key_press()
+    {
+        println("Key press event");
+        if      (input_key == KEY_Shift_L)
+            response.process_hit(event_time, EVENT_STOP_LOOKING);
+        else if (input_key == KEY_Shift_R)
+            response.process_hit(event_time, EVENT_START_LOOKING);
+        else
+            handle_special_key(this, input_key, input_modifiers);
+    }
+
+    on_event:message()
+    {
+        println("message");
+        response.process_hit(event_time, message_arg);
     }
 
     Response response
@@ -43,6 +64,7 @@ Page testpage
         time    nolookstart;
         dur     cumlt;
         dur     cumnlt;
+        int     nlookaways;
 
         on_event:start()
         {
@@ -54,26 +76,46 @@ Page testpage
 
         void clear()
         {
-            lookstart   = 0;
-            nolookstart = 0;
+            is_looking  = true;
+            lookstart   = time(0);
+            nolookstart = time(0);
             cumlt       = 0ms;
             cumnlt      = 0ms;
-            is_looking = true;
+            nlookaways  = 0;
         }
 
-        void process_hit(time t, HvfEvent event)
+        void process_hit(time t, int event)
         {
             HitType validity = hit(t);
+            println("Process hit: " + string(validity) + " " + event);
             if (validity == HIT_VALID) {
-                if (event == EVENT_START) { // start abort timer
+                if (event == EVENT_STOP_LOOKING) { // start abort timer
+                    if (!is_looking)
+                        return; // ignore, because we weren't looking.
                     is_looking = false;
                     nolookstart = t;
-                    cumlt += (t - lookstart)
+                    cumlt += (t - lookstart);
+
+                    abort_trial_timer.start(t + MAX_LOOK_AWAY_DURATION);
+                    nlookaways++;
                 }
-                else if (event == EVENT_STOP) {
-                    is_looking = false;
-                    nolookstart = t;
-                    cumlt += (t - lookstart)
+                else if (event == EVENT_START_LOOKING) {
+                    if(is_looking)
+                        return; // ignore, because we already were looking.
+                    is_looking = true;
+                    lookstart = t;
+                    cumnlt += (t - nolookstart);
+
+                    abort_trial_timer.abort();
+                }
+                else if (event == EVENT_STOP_TIMER) {
+                    if (is_looking)
+                        cumlt += (t - lookstart);
+                    else
+                        cumnlt+= (t - nolookstart);
+
+                    // abort trial
+                    done(CONTINUE);
                 }
             }
         }
@@ -83,14 +125,14 @@ Page testpage
     {
         on_event:init()
         {
-            spacing = 50;
-            height = 0;
-            is_visible = true;
+            spacing     = 50;
+            height      = 0;
+            is_visible  = true;
         }
 
-        Canvas canvas
+        CanvasGadget canvas
         {
-            double max_radius;
+            real max_radius;
 
             on_event:init()
             {
@@ -101,77 +143,224 @@ Page testpage
                 offset_y = height/2;
 
                 max_radius =
-                    canvas.width < canvas.height : canvas.width ? canvas.height;
+                    canvas.width < canvas.height ? canvas.width : canvas.height;
+                max_radius /= 2;
                 //Hide the canvas frame
                 fill_pattern_color = TEST_PAGE_COLOR;
 
                 // This puts the bullseye in a frame
                 //fill_pattern_color = TEST_PAGE_STIMULUS_COLOR;
+
+                is_visible = true;
+            }
+
+            on_event:start()
+            {
+                println("Releasing clock.");
+                control.release_clock(event_time);
             }
 
             // Make circle shapes that get smaller and smaller.
-            CirkelShape c0
+            CircleShape c0
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 0;
-                fill_pattern_color = colors[0];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 0;
+                    fill_pattern_color = shape_colors[0];
+                    is_visible = true;
+                }
             }
-            CirkelShape c1
+
+            CircleShape c1
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 1;
-                fill_pattern_color = colors[1];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 1;
+                    fill_pattern_color = shape_colors[1];
+                    is_visible = true;
+                }
             }
-            CirkelShape c2
+
+            CircleShape c2
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 2;
-                fill_pattern_color = colors[2];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 2;
+                    fill_pattern_color = shape_colors[2];
+                    is_visible = true;
+                }
             }
-            CirkelShape c3
+
+            CircleShape c3
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 3;
-                fill_pattern_color = colors[3];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 3;
+                    fill_pattern_color = shape_colors[3];
+                    is_visible = true;
+                }
             }
-            CirkelShape c4
+
+            CircleShape c4
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 4;
-                fill_pattern_color = colors[4];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 4;
+                    fill_pattern_color = shape_colors[4];
+                    is_visible = true;
+                }
             }
-            CirkelShape c5
+
+            CircleShape c5
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 5;
-                fill_pattern_color = colors[5];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 5;
+                    fill_pattern_color = shape_colors[5];
+                    is_visible = true;
+                }
             }
-            CirkelShape c6
+
+            CircleShape c6
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 6;
-                fill_pattern_color = colors[6];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 6;
+                    fill_pattern_color = shape_colors[6];
+                    is_visible = true;
+                }
             }
-            CirkelShape c7
+
+            CircleShape c7
             {
-                x = 0;
-                y = 0;
-                radius = max_radius - max_radius / 8 * 7;
-                fill_pattern_color = colors[7];
+                on_event:init()
+                {
+                    x = 0;
+                    y = 0;
+                    radius = max_radius - max_radius / 8 * 7;
+                    fill_pattern_color = shape_colors[7];
+                    is_visible = true;
+                }
             }
+
+        }
+        void reset()
+        {
+            full_abort();
+            canvas.is_visible    = false;
+            canvas.c0.is_visible = false;
+            canvas.c1.is_visible = false;
+            canvas.c2.is_visible = false;
+            canvas.c3.is_visible = false;
+            canvas.c4.is_visible = false;
+            canvas.c5.is_visible = false;
+            canvas.c6.is_visible = false;
+            canvas.c7.is_visible = false;
+        }
+
+        void start_stimulus(time t)
+        {
+            canvas.start(t);
+            canvas.c0.start(t);
+            canvas.c1.start(t);
+            canvas.c2.start(t);
+            canvas.c3.start(t);
+            canvas.c4.start(t);
+            canvas.c5.start(t);
+            canvas.c6.start(t);
+            canvas.c7.start(t);
         }
     }
 
-    time action(time start, bool shuffle_colors=false)
+    SoundChain audio
     {
-        time tref = test_windows1.show_test_page(this, start);
+        SoundFile clip{}
+        SoundPlayback playback{}
+
+        on_event:start()
+        {
+            control.hide_speaker_icon(FRONT_SIDE | LEFT_SIDE | RIGHT_SIDE);
+            control.show_speaker_icon(FRONT_SIDE);
+
+            //perhaps save audio start even to detailed log.
+        }
+
+        on_event:finish()
+        {
+            control.hide_speaker_icon(FRONT_SIDE | LEFT_SIDE | RIGHT_SIDE);
+            // perhaps save audio end event to detailed log.
+
+            // start the new audio stimulus
+            play(event_time + TEST_ISI);
+        }
+
+        time play(time t)
+        {
+            abort();
+            playback.device = sound_output_device;
+            clip.file = stimuli_dir() + "audio/" + item.snd_fn + ".wav";
+
+            start (t);
+            return expected_start_time;
+        }
+    }
+
+    void done(int message)
+    {
+        audio.abort();
+        signal_target(message);
+        layout.reset();
+        max_trial_dur_timer.abort();
+        abort_trial_timer.abort();
+        control.erase_clock();
+    }
+
+    void setup()
+    {
+        control.target = this;
+        // Currently all buttons are set in task could be done here.
+    }
+
+    time action(Object      caller,
+                time        start,
+                TestItem    item,
+                bool        shuffle_colors = false 
+                )
+    {
+        time tref      = test_window1.show_test_page(this, start + TEST_ISI);
+        test_window1.activate(); // to capture keyboard events.
+        test_page.item = item;
+        this.target    = caller;
+
+        audio.play(tref);
+
+        response.start(tref);
+        layout.start_stimulus(tref);
+
+        control.target = this;
+        control.reset_clock();
+        control.begin_clock();
+        control.start_clock(tref);
+
+        if (MAX_TRIAL_DURATION > 0s)
+            max_trial_dur_timer.start(tref + MAX_TRIAL_DURATION);
+
         return tref;
     }
 }
+
+
