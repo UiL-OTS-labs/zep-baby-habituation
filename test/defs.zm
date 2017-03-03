@@ -12,8 +12,9 @@ const int  MAX_TEST_TRIALS              = 2;        // Max number of test trials
                                                     // if <= 0 the number
                                                     // of test items.
 const real HABITUATION_CRITERION	    = 65.0;
-const int  MAX_HABITUATION_TRIALS	    = 12;
-const int  MAX_STIMULI_PER_TRIAL	    = 30;
+
+const int  MAX_HABITUATION_TRIALS	    = 25;
+//const int  MAX_STIMULI_PER_TRIAL	    = 30;       // not used
 const dur  MAX_LOOK_AWAY_DURATION	    = 2000ms;
 const dur  MAX_TRIAL_DURATION           = 45s;
 
@@ -23,4 +24,4 @@ const dur  CLOCK_UPDATE_PERIOD          = 20ms;
 
 const real BEEP_VOLUME                  = 0.1;
 
-
+const dur  INTER_MOVIE_STIM_DUR         = 100ms;

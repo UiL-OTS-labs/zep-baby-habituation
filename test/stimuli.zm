@@ -11,24 +11,40 @@ record TestItem
     int         id;
     ItemType    type;
     string      snd_fn;
+
 }
 
+string[..] bepitems = {
+    "bep1",
+    "bep2",
+    "bep3",
+    "bep4",
+    "bep5"
+};
+         
+string[..] bipitems = {
+    "bip1",
+    "bip2",
+    "bip3",
+    "bip4",
+    "bip5"
+};
 
 TestItem[..][..] hab_items =
 {
     { // LIST 1
-        {1, HABITUATION, "bep1"},
-        {2, HABITUATION, "bep2"},
-        {3, HABITUATION, "bep3"},
-        {4, HABITUATION, "bep4"},
-        {5, HABITUATION, "bep5"}
+        {1, HABITUATION},
+        {2, HABITUATION},
+        {3, HABITUATION},
+        {4, HABITUATION},
+        {5, HABITUATION}
     },
     { // LIST 2
-        {1, HABITUATION, "bip1"},
-        {2, HABITUATION, "bip2"},
-        {3, HABITUATION, "bip3"},
-        {4, HABITUATION, "bip4"},
-        {5, HABITUATION, "bip5"}
+        {1, HABITUATION},
+        {2, HABITUATION},
+        {3, HABITUATION},
+        {4, HABITUATION},
+        {5, HABITUATION}
     }
 };
 
@@ -70,3 +86,52 @@ void shuffle_test_items()
     }
 }
 
+
+string[..] video_frames = {
+    "stimuli/movies/frame000.png",
+    "stimuli/movies/frame001.png",
+    "stimuli/movies/frame002.png",
+    "stimuli/movies/frame003.png",
+    "stimuli/movies/frame004.png",
+    "stimuli/movies/frame005.png",
+    "stimuli/movies/frame006.png",
+    "stimuli/movies/frame007.png",
+    "stimuli/movies/frame008.png",
+    "stimuli/movies/frame009.png",
+    "stimuli/movies/frame010.png",
+    "stimuli/movies/frame011.png",
+    "stimuli/movies/frame012.png",
+    "stimuli/movies/frame013.png",
+    "stimuli/movies/frame014.png",
+    "stimuli/movies/frame015.png",
+    "stimuli/movies/frame016.png",
+    "stimuli/movies/frame017.png",
+    "stimuli/movies/frame018.png",
+    "stimuli/movies/frame019.png",
+    "stimuli/movies/frame020.png",
+};
+
+int movie_frame_index   = 0;
+int movie_frame_inc     = 1;
+
+/**
+ * capture next frame of video in such a way that the first frame is 0 and
+ * then it moves towards video_frames.size. Once it is in the end position
+ * the direction is reversed.
+ */
+string next_movie_stim()
+{
+    string ret = video_frames[movie_frame_index];
+    if (movie_frame_index == video_frames.size - 1 && movie_frame_inc != -1)
+        movie_frame_inc = -1;
+    else if(movie_frame_index == 0 && movie_frame_inc != 1)
+        movie_frame_inc = 1;
+    movie_frame_index += movie_frame_inc;
+    return ret;
+}
+
+void reset_movie_stims()
+{
+    movie_frame_index = 0;
+    movie_frame_inc   = 1;
+}

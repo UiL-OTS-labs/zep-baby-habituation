@@ -2,19 +2,21 @@
 
 /************************************************************
  *                                                          *
+ *    infant starts looking        infant stops looking     *
  *           0                                2             *
  *                                                          *
- *                                                          *
- *                          1                               *
+ *                start the attention grabber               *
+ *                             1                            *
  *                                                          *
  ************************************************************/
 enum ButtonDefs {
     BUTTON_LEFT = 0,
+    BUTTON_LOWER = 1,
     BUTTON_RIGHT = 2
 };
 
 /**
- * Currently called HvfEvent, but could use a better name.
+ * Events in the display
  */
 const int EVENT_START_LOOKING   = 0;    // Used when child is looking
                                         // to attention. Or when the child
@@ -27,3 +29,4 @@ const int EVENT_AUDIO_FINISH    = 3;    // signals end of audio (not used).
 
 const int EVENT_STOP_TIMER      = 4;    // The started timer aborts the trial.
 
+const int EVENT_START_ATTENTION = 5;    // starts the attention grabber.

@@ -1,4 +1,5 @@
 
+
 color[..] shape_colors =
 {
     color:red,
@@ -11,38 +12,33 @@ color[..] shape_colors =
     color:green
 };
 
-
 Page test_page
 {
-
     TestItem item;
     Object   caller;
 
     // This timer is started at the beginning of a trial if it is fired
     // the trial ends because of maximum trial duration is called.
-    Timer max_trial_dur_timer {
-
+    Timer max_trial_dur_timer
+    {
         on_event:expire()
         {
             response.process_hit(event_time, EVENT_STOP_TIMER);
         }
-
     }
     
     // Pressing the left button on the button box starts this timer
     // if the timer expires the trial will be aborted.
-    Timer abort_trial_timer{
-
+    Timer abort_trial_timer
+    {
         on_event:expire()
         {
             response.process_hit(event_time, EVENT_STOP_TIMER);
         }
-
     }
 
     on_event:key_press()
     {
-        println("Key press event");
         if      (input_key == KEY_Shift_L)
             response.process_hit(event_time, EVENT_STOP_LOOKING);
         else if (input_key == KEY_Shift_R)
@@ -53,7 +49,6 @@ Page test_page
 
     on_event:message()
     {
-        println("message");
         response.process_hit(event_time, message_arg);
     }
 
@@ -87,7 +82,8 @@ Page test_page
         void process_hit(time t, int event)
         {
             HitType validity = hit(t);
-            println("Process hit: " + string(validity) + " " + event);
+            //println("Process hit: " + string(validity) + " " + event);
+            
             if (validity == HIT_VALID) {
                 if (event == EVENT_STOP_LOOKING) { // start abort timer
                     if (!is_looking)
@@ -97,6 +93,7 @@ Page test_page
                     cumlt += (t - lookstart);
 
                     abort_trial_timer.start(t + MAX_LOOK_AWAY_DURATION);
+                    control.stop_clock(t);
                     nlookaways++;
                 }
                 else if (event == EVENT_START_LOOKING) {
@@ -106,6 +103,7 @@ Page test_page
                     lookstart = t;
                     cumnlt += (t - nolookstart);
 
+                    control.start_clock(t);
                     abort_trial_timer.abort();
                 }
                 else if (event == EVENT_STOP_TIMER) {
@@ -127,18 +125,14 @@ Page test_page
         {
             spacing     = 50;
             height      = 0;
-            is_visible  = true;
         }
 
         CanvasGadget canvas
         {
-            real max_radius;
 
             on_event:init()
             {
-                width = 800;
-                height= 800;
-
+                size = 900,900;
                 offset_x = width/2;
                 offset_y = height/2;
 
@@ -156,7 +150,7 @@ Page test_page
 
             on_event:start()
             {
-                println("Releasing clock.");
+                //println("Releasing clock.");
                 control.release_clock(event_time);
             }
 
@@ -329,10 +323,10 @@ Page test_page
         control.erase_clock();
     }
 
-    void setup()
+    void setup(TestItem item)
     {
-        control.target = this;
-        // Currently all buttons are set in task could be done here.
+        // Load first audio file here.
+        test_page.item = item;
     }
 
     time action(Object      caller,
@@ -341,9 +335,10 @@ Page test_page
                 bool        shuffle_colors = false 
                 )
     {
-        time tref      = test_window1.show_test_page(this, start + TEST_ISI);
-        test_window1.activate(); // to capture keyboard events.
-        test_page.item = item;
+        time tref      = test_window1.show_test_page(this, start);
+        
+        // Doesn't work because of std_baby_windows1.zm
+        // test_window1.activate(); // to capture keyboard events.
         this.target    = caller;
 
         audio.play(tref);

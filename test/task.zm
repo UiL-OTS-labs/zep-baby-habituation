@@ -22,6 +22,7 @@ Block task
 
         control.button_box.disable_buttons();
         control.button_box.enable_button(int(BUTTON_LEFT), EVENT_STOP_LOOKING);
+        control.button_box.enable_button(int(BUTTON_LOWER),EVENT_START_ATTENTION);
         control.button_box.enable_button(int(BUTTON_RIGHT),EVENT_START_LOOKING);
 
         nth_list = int(selected_group)/2; 
@@ -38,7 +39,6 @@ Block task
     {
         on_event:entry()
         {
-            //habituation_handler.setup();
             attention_page.setup();
         }
 
@@ -55,13 +55,15 @@ Block task
                 num_cycles = MAX_HABITUATION_TRIALS;
             }
 
-//            Trial grab_attention
-//            {
-//                on_event:entry()
-//                {
-//                    attention_page.action(this, reference_time);
-//                }
-//            }
+            Trial grab_attention
+            {
+                on_event:entry()
+                {
+                    attention_page.setup();
+                    attention_page.action(this, reference_time, TEST_ISI);
+                    control.set_status("Habituation attention");
+                }
+            }
 
             Trial trial
             {
@@ -75,7 +77,7 @@ Block task
                             reference_time,
                             item
                             );
-                    control.set_status("Habituation " + string(cycle));
+                    control.set_status("Habituation trial" + string(cycle));
                 }
                 
                 on_event:exit()
