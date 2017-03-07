@@ -1,5 +1,6 @@
 
 
+// The colors used for the bullseye.
 color[..] shape_colors =
 {
     color:red,
@@ -14,8 +15,11 @@ color[..] shape_colors =
 
 Page test_page
 {
-    TestItem item;
-    Object   caller;
+    TestItem[]  item_list;      // All presentable items.
+    TestItem    item;           // the currently presented item.
+    int         nth_trial;      // the number of the current trial.
+
+    //Object      caller;
 
     // This timer is started at the beginning of a trial if it is fired
     // the trial ends because of maximum trial duration is called.
@@ -37,6 +41,8 @@ Page test_page
         }
     }
 
+    // Key press doesn't work properly since the baby window is a output
+    // only window.
     on_event:key_press()
     {
         if      (input_key == KEY_Shift_L)
@@ -129,6 +135,7 @@ Page test_page
 
         CanvasGadget canvas
         {
+            real max_radius;
 
             on_event:init()
             {
@@ -252,6 +259,7 @@ Page test_page
             }
 
         }
+
         void reset()
         {
             full_abort();
@@ -298,8 +306,23 @@ Page test_page
             control.hide_speaker_icon(FRONT_SIDE | LEFT_SIDE | RIGHT_SIDE);
             // perhaps save audio end event to detailed log.
 
+            StimOutput output;
+            time begin = zero_time();
+            output.trial    = nth_trial;
+            output.tstart   = int(start_time - begin);
+            output.tend     = int(finish_time - begin);
+            output.stimulus = clip.file;
+
+            stimulus_output_append(output);
+
             // start the new audio stimulus
+            select_new_stimulus();
             play(event_time + TEST_ISI);
+        }
+
+        void select_new_stimulus()
+        {
+            item = item_list[random(0, item_list.size)];
         }
 
         time play(time t)
@@ -323,20 +346,24 @@ Page test_page
         control.erase_clock();
     }
 
-    void setup(TestItem item)
+    void setup(TestItem[] items)
     {
         // Load first audio file here.
-        test_page.item = item;
+        item_list   = items;
+        item        = item_list[random(0, item_list.size)];
+
+        // preload the file
+        audio.clip.file = stimuli_dir() + "audio/" + item.snd_fn + ".wav";
     }
 
     time action(Object      caller,
                 time        start,
-                TestItem    item,
+                int         trial_num,
                 bool        shuffle_colors = false 
                 )
     {
         time tref      = test_window1.show_test_page(this, start);
-        
+        nth_trial      = trial_num;        
         // Doesn't work because of std_baby_windows1.zm
         // test_window1.activate(); // to capture keyboard events.
         this.target    = caller;

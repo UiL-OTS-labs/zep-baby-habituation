@@ -1,46 +1,12 @@
 
-//import utils;
-//import display_hvf;
-//import stimuli_hvf;
-//import sound_hvf;
-//import pretest_hvf;
-//import posttest_hvf;
-//import habituation_hvf;
-//import test_hvf;
 
 import response_box; // import response_box before std_baby_windows_1
 import std_baby_windows1;
+import std_exit_page2;
 import std_sound_playback;
 import test::hvf_event;
 import test::task;
 
-////------------------------------------------------------------------------------
-//
-//int		ppnum;		// subject number specified as argument
-//int		ppgroup;	// subject group specified as argument
-//int		ppage;		// subject age specified as argument
-//int		ppweek;		// subject week specified as argument
-//string		ppsex;		// subject gender specified as argument
-//string		partname; 	// current part/phase name
-//int		trialnum;	// current trial number
-//int		stimnum;	// current stimulus number
-//int		xyindex;	// current X/Y selection index in stimulus array
-//int		stimindex;	// current stimulus index in stimulus array
-//int[..]		stimmap;	// stimulus list mapping array
-//
-//time		lookingtime;	// looking time for current trial
-//time		pretest_lt;	// pretest looking time (compare w/ posttest lt)
-//time[..]	lt;		// array of looking times (habituation)
-//time		avgfirst;	// average looking time in first 3 hab trials
-//time		avghab;		// avgfirst * habituation criterion
-//time		avgnext;	// average looking time in moving window
-//
-//string[]	movie;		// reference to active attention getter 'movie'
-//string[]	faces;		// reference to selected array of face images
-
-//------------------------------------------------------------------------------
-
-int 	    	curr_trial; 	// internal variable for habituation
 
 Experiment experiment
 {
@@ -70,244 +36,32 @@ Experiment experiment
 
     //--------------------------------------------------------------------------
 
-    Part thankyou 
+    Part thankyou
     {
-        bool started;
+        int     sesid;
 
         on_event:entry()
         {
-//            print("# Experiment finished.\n");
-//            faces = face_images;
-//            movie = movie1_frames;
-//            prepareTestGraphics();
-//            setStatus1("experiment finished");
-//            setStatus2("press start for music");
-        }
+            sesid = expdb.experiment.session.id;
 
-//        void handle_event(test::HvfEvent event)
-//        {
-//            if (!started && event_code == EVENT_START)
-//            {
-//                started = true;
-//                startAttentionGetter(event_time + 100ms);
-//                audio.play_source = sound.out;
-//                sound.file.set_scaling(0, 0.5);
-//                sound.file.file = zep_data_dir() + "sounds/handjes.wav";
-//                sound.start(event_time + 250ms);
-//            }
-//            else if (event_code == EVENT_SOUND_END)
-//            {
-//                stopAttentionGetter();
-//            }
-//            else if (
-//                event_code == EVENT_STOP || 
-//                event_code == EVENT_TERMINATE || 
-//                event_code == EVENT_MAIN_CLOSE || 
-//                event_code == EVENT_ABORT
-//                )
-//                terminate;
-//        }
+            control.end_experiment();   // Check-in session.
+            control.button_box.disable_buttons();
+            control.button_box.enable_all_buttons(CONTINUE);
+
+            exit_page.add_image(stimuli_dir() + "images/giraf.png");
+            exit_page.add_image(stimuli_dir() + "images/bal.png");
+            exit_page.add_image(stimuli_dir() + "images/kikker.png");
+            exit_page.add_image(stimuli_dir() + "images/kip.png");
+            exit_page.add_image(stimuli_dir() + "images/koe.png");
+            exit_page.add_image(stimuli_dir() + "images/konijn.png");
+            exit_page.add_image(stimuli_dir() + "images/pinguin.png");
+            exit_page.add_image(stimuli_dir() + "images/vlinder.png");
+            exit_page.add_image(stimuli_dir() + "images/zebra.png");
+            exit_page.action(this, 60s);
+            sound_playback.playback.set_scaling(1.0);
+            sound_playback.play(stimuli_dir() + "audio/handjes.wav", 
+                now() + 1000ms);
+        }
     }
 }
 
-//------------------------------------------------------------------------------
-
-//void logPreTestEventHeader()
-//{
-//    print("# subj\tgroup\tage\tweek\tsex\tphase\tstim\tevent\tlook\ttime\n");
-//}
-//
-//void logPostTestEventHeader()
-//{
-//    logPreTestEventHeader();
-//}
-//
-//void logHabTestEventHeader()
-//{
-//    print("# subj\tgroup\tage\tweek\tsex\tphase\ttrial\tstim\ttoken\tevent\tlook\ttime\n");
-//}
-//
-//void logTestEventHeader()
-//{
-//    logHabTestEventHeader();
-//}
-//
-//void logPreTestEvent(int e, time t)
-//{
-//    print("# " +
-//            format(ppnum) + "\t" +
-//            format(ppgroup) + "\t" +
-//            format(ppage) + "\t" +
-//            format(ppweek) + "\t" +
-//            format(ppsex) + "\t" +
-//            format(partname) + "\t" +
-//            format(stimnum) + "\t" +
-//            format(event_names[e]) + "\t" +
-//            format(int(lookingtime)) + "\t" +
-//            format(int(t - zero_time())) + "\n");
-//}
-//
-//void logPostTestEvent(int e, time t)
-//{
-//    logPreTestEvent(e, t);
-//}
-//
-//void logHabTestEvent(int e, time t)
-//{
-//    print("# " +
-//            format(ppnum) + "\t" +
-//            format(ppgroup) + "\t" +
-//            format(ppage) + "\t" +
-//            format(ppweek) + "\t" +
-//            format(ppsex) + "\t" +
-//            format(partname) + "\t" +
-//            format(trialnum) + "\t" +
-//            format(stimnum) + "\t" +
-//            (xyindex == 0 ? "X" : "Y") + format(stimindex+1) + "\t" +
-//            format(event_names[e]) + "\t" +
-//            format(int(lookingtime)) + "\t" +
-//            format(int(t - zero_time())) + "\n");
-//}
-//
-//void logTestEvent(int e, time t)
-//{
-//    logHabTestEvent(e, t);
-//}
-//
-//void logPreTestData()
-//{
-//    print("\n! subj\tgroup\tage\tweek\tsex\tphase\tlook\n");
-//    print(
-//            format(ppnum) + "\t" +
-//            format(ppgroup) + "\t" +
-//            format(ppage) + "\t" +
-//            format(ppweek) + "\t" +
-//            format(ppsex) + "\t" +
-//            format(partname) + "\t" +
-//            format(int(lookingtime)) + "\n\n");
-//}
-//
-//void logPostTestData()
-//{
-//    logPreTestData();
-//}
-//
-//void logHabTestData()
-//{
-//    if (trialnum == 1)
-//        print("\n! subj\tgroup\tage\tweek\tsex\tphase\ttrial\ttoken\tlook\n");
-//    print(
-//            format(ppnum) + "\t" +
-//            format(ppgroup) + "\t" +
-//            format(ppage) + "\t" +
-//            format(ppweek) + "\t" +
-//            format(ppsex) + "\t" +
-//            format(partname) + "\t" +
-//            format(trialnum) + "\t" +
-//            (xyindex == 0 ? "X" : "Y") + format(stimindex+1) + "\t" +
-//            format(int(lookingtime)) + "\n\n");
-//}
-//
-//void logTestData()
-//{
-//    if (trialnum == 1)
-//        print("\n! subj\tgroup\tage\tweek\tsex\tphase\ttrial\tlook\n");
-//    print(
-//            format(ppnum) + "\t" +
-//            format(ppgroup) + "\t" +
-//            format(ppage) + "\t" +
-//            format(ppweek) + "\t" +
-//            format(ppsex) + "\t" +
-//            format(partname) + "\t" +
-//            format(trialnum) + "\t" +
-//            format(int(lookingtime)) + "\n\n");
-//}
-//
-//void showBasicStatus()
-//{
-//    setStatus1(
-//            format(ppnum) + "  " +
-//            format(ppgroup) + "  " +
-//            format(ppage) + "  " +
-//            format(ppweek) + "  " +
-//            format(ppsex));
-//
-//}
-//
-//void showPrePostStatus()
-//{
-//    setStatus1(
-//            format(ppnum) + "  " +
-//            format(ppgroup) + "  " +
-//            format(ppage) + "  " +
-//            format(ppweek) + "  " +
-//            format(ppsex) + "  " +
-//            format(partname) + "  " +
-//            format(stimnum));
-//}
-//
-//void showTestStatus()
-//{
-//    setStatus1(
-//            format(ppnum) + "  " +
-//            format(ppgroup) + "  " +
-//            format(ppage) + "  " +
-//            format(ppweek) + "  " +
-//            format(ppsex) + "  " +
-//            format(partname) + "  " +
-//            format(trialnum) + "  " +
-//            format(stimnum) + "  " +
-//            (xyindex == 0 ? "X" : "Y") + format(stimindex+1));
-//}
-
-//------------------------------------------------------------------------------
-
-//on_start()
-//{
-//    if (num_arguments() < 5 || num_arguments() > 5)
-//    {
-//        print("Usage: zep <ppnum> <ppgroup> <age> <week> <sex>\n");
-//        terminate;
-//    }
-//
-//    ppnum = int(argument(0));
-//    if (ppnum < 0)
-//    {
-//        print("Invalid subject number specified!\n");
-//        terminate;
-//    }
-//
-//    ppgroup = int(argument(1));
-//    if (ppgroup < 1 || ppgroup > 4)
-//    {
-//        print("Invalid group number specified!\n");
-//        terminate;
-//    }
-//
-//    ppage = int(argument(2));
-//    if (ppage < 1 || ppage > 16)
-//    {
-//        print("Invalid age number specified!\n");
-//        terminate;
-//    }
-//
-//    ppweek = int(argument(3));
-//    if (ppweek < 1 || ppweek > 70)
-//    {
-//        print("Invalid week number specified!\n");
-//        terminate;
-//    }
-//
-//    ppsex = argument(4);
-//
-//    print("! seednum:      " + format(random_seed()) + "\n");
-//    print("! started:      " + format_date(zero_time()) + "\n\n");
-//    print("#-------------------------------------------------------------------------------\n\n");
-//
-//    experiment.begin();
-//}
-
-//on_signal_int()
-//{
-//    experiment.handle_event(int(EVENT_TERMINATE), now());
-//}

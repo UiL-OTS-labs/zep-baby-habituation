@@ -92,8 +92,10 @@ Page attention_page
 
             void clear()
             {
-                frontbuffer.is_playing = false;
-                backbuffer.is_playing  = false;
+                frontbuffer.is_playing  = false;
+                backbuffer.is_playing   = false;
+                frontbuffer.is_visible  = false;
+                backbuffer.is_visible   = false;
             }
         }
 
@@ -113,7 +115,6 @@ Page attention_page
     {
         void process_hit(time t, int event)
         {
-            println("Attention process hit " + string(event));
             HitType validity = hit(t);
             if (validity == HIT_VALID)
             {

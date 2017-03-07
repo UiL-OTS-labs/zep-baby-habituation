@@ -2,16 +2,16 @@
 
 enum ItemType
 {
-    HABITUATION,
-    NOVEL,
+    HABITUATION,        // Stimulus from habituation phase
+    NOVEL,              // Stimulus from test phase
+    ATTENTION           // Stimulus to check the infants 
 }
 
 record TestItem
 {
-    int         id;
-    ItemType    type;
-    string      snd_fn;
-
+    int         id;         // The id of the trial.
+    ItemType    type;       // What type of stimulus is presented.
+    string      snd_fn;     // Which stimulus is presented.
 }
 
 string[..] bepitems = {
@@ -32,22 +32,25 @@ string[..] bipitems = {
 
 TestItem[..][..] hab_items =
 {
-    { // LIST 1
-        {1, HABITUATION},
-        {2, HABITUATION},
-        {3, HABITUATION},
-        {4, HABITUATION},
-        {5, HABITUATION}
+    { // List 1
+        {1, HABITUATION, "bep1"},
+        {2, HABITUATION, "bep2"},
+        {3, HABITUATION, "bep3"},
+        {4, HABITUATION, "bep4"},
+        {5, HABITUATION, "bep5"}
     },
-    { // LIST 2
-        {1, HABITUATION},
-        {2, HABITUATION},
-        {3, HABITUATION},
-        {4, HABITUATION},
-        {5, HABITUATION}
+    { // List 2
+        {1, HABITUATION, "bip1"},
+        {2, HABITUATION, "bip2"},
+        {3, HABITUATION, "bip3"},
+        {4, HABITUATION, "bip4"},
+        {5, HABITUATION, "bip5"}
     }
 };
 
+/**
+ * In this experiment the stimuli are selected randomly from the test page.
+ */
 void shuffle_hab_items()
 {
     int i;
@@ -58,6 +61,8 @@ void shuffle_hab_items()
     }
 }
 
+// This list is stimuluswise a mirror of the habituation items, since in the
+// 
 TestItem[..][..] test_items =
 {
     { // List 1
@@ -86,6 +91,14 @@ void shuffle_test_items()
     }
 }
 
+TestItem[..] attention_items =
+{
+    {1, ATTENTION, "bupoki1"},
+    {2, ATTENTION, "bupoki2"},
+    {3, ATTENTION, "bupoki3"},
+    {4, ATTENTION, "bupoki4"},
+    {5, ATTENTION, "bupoki5"}
+};
 
 string[..] video_frames = {
     "stimuli/movies/frame000.png",

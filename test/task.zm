@@ -37,358 +37,186 @@ Block task
 
     Block habituation
     {
+        TestItem[] item_list;
+
         on_event:entry()
         {
-            attention_page.setup();
+            item_list = hab_items[nth_list];
+            num_cycles = MAX_HABITUATION_TRIALS;
         }
 
         on_event:exit()
         {
-            save_habituation();
+            save_output();
         }
 
-
-        Block trials
+        Trial grab_attention
         {
             on_event:entry()
             {
-                num_cycles = MAX_HABITUATION_TRIALS;
+                test_page.setup(item_list);
+                attention_page.setup();
+                attention_page.action(this, reference_time, TEST_ISI);
+                control.set_status("Habituation attention");
             }
+        }
 
-            Trial grab_attention
+        Trial trial
+        {
+
+            on_event:entry()
             {
-                on_event:entry()
-                {
-                    attention_page.setup();
-                    attention_page.action(this, reference_time, TEST_ISI);
-                    control.set_status("Habituation attention");
-                }
+                test_page.action(
+                        this,
+                        reference_time,
+                        habituation.cycle + 1
+                        );
+                control.set_status("Habituation trial" + string(cycle));
             }
-
-            Trial trial
+            
+            on_event:exit()
             {
-                TestItem item;
+                TestOutput output;
+                output.trialnum = habituation.cycle + 1;
+                output.lt       = int(test_page.response.cumlt);
+                output.nlt      = int(test_page.response.cumnlt);
+                output.lookaways= test_page.response.nlookaways;
+                output.phase    = PHASE_HAB;
 
-                on_event:entry()
-                {
-                    item = hab_items[nth_list][trials.cycle % hab_items.size];
-                    test_page.action(
-                            this,
-                            reference_time,
-                            item
-                            );
-                    control.set_status("Habituation trial" + string(cycle));
-                }
-                
-                on_event:exit()
-                {
-                    TestOutput output;
-                    output.trialnum = trials.cycle + 1;
-                    output.id       = item.id;
-                    output.lt       = int(test_page.response.cumlt);
-                    output.nlt      = int(test_page.response.cumnlt);
-                    output.lookaways= test_page.response.nlookaways;
-
-                    StimOutput soutput;
-                    soutput.stimulus = item.snd_fn;
-                    hab_output_append(output, soutput);
-                }
+                output_append(output);
             }
+        }
 
-            TransientPart test_hab_done
+        // Tests whether the habituation criterion is met.
+        TransientPart test_hab_done
+        {
+            on_event:entry()
             {
-                on_event:entry()
-                {
-                    if (habituation_done())
-                        trials.leave();
-                }
+                if (habituation_done())
+                    habituation.leave();
             }
         }
     }
 
     Block test
     {
-        on_event:entry()
-        {
-            //habituation_handler.setup();
-            attention_page.setup();
-        }
+        TestItem[] item_list;
 
         on_event:exit()
         {
-            save_test();
+            save_output();
+        }
+            
+        on_event:entry()
+        {
+            attention_page.setup();
+
+            item_list = test_items[nth_list];
+
+            if (MAX_TEST_TRIALS <= 0)
+                num_cycles = test_items[nth_list].size;
+            else
+                num_cycles = MAX_TEST_TRIALS;
         }
 
-
-        Block trials
+        Trial grab_attention
         {
             on_event:entry()
             {
-                if (MAX_TEST_TRIALS <= 0)
-                    num_cycles = test_items[nth_list].size;
-                else
-                    num_cycles = MAX_TEST_TRIALS;
+                test_page.setup(item_list);
+                attention_page.setup();
+                attention_page.action(this, reference_time, TEST_ISI);
+                control.set_status("Test attention");
             }
+        }
 
-//            Trial grab_attention
-//            {
-//                on_event:entry()
-//                {
-//                    attention_page.action(this, reference_time);
-//                }
-//            }
+        Trial trial
+        {
 
-            Trial trial
+            on_event:entry()
             {
-                TestItem item;
+                test_page.action(
+                        this,
+                        reference_time,
+                        test.cycle + 1
+                        );
+                control.set_status("Test " + string(test.cycle));
+            }
+            
+            on_event:exit()
+            {
+                TestOutput output;
 
-                on_event:entry()
-                {
-                    item = test_items[nth_list][trials.cycle];
-                    test_page.action(
-                            this,
-                            reference_time,
-                            item
-                            );
-                    control.set_status("Test " + string(trials.cycle));
-                }
-                
-                on_event:exit()
-                {
-                    TestOutput output;
-                    output.trialnum = trials.cycle + 1;
-                    output.id       = item.id;
-                    output.lt       = int(test_page.response.cumlt);
-                    output.nlt      = int(test_page.response.cumnlt);
+                output.trialnum = test.cycle + 1;
+                output.lt       = int(test_page.response.cumlt);
+                output.nlt      = int(test_page.response.cumnlt);
+                output.phase    = PHASE_TEST;
 
-                    StimOutput soutput;
-                    soutput.stimulus = item.snd_fn;
-                    test_output_append(output, soutput);
+                output_append(output);
 
-                }
             }
         }
     }
+   
+    // Displays one additional trial to check whether the child has attention
+    // in general
+    Block attention
+    {
+        TestItem[] item_list;
 
-//    // Test
-//    Part test
-//    {
-//        on_begin()
-//        {
-//            partname = "TEST";
-//            curr_trial = -1;
-//
-//            trials.begin();
-//
-//            showTestStatus();
-//        }
-//
-//        on_end()
-//        {
-//            showBasicStatus();
-//        }
-//
-//        void handle_event(HvfEvent event)
-//        {
-//            if (event_code == EVENT_SOUND_BEGIN)
-//            {
-//                speakerSymbolOn(sound_position);
-//                stampLookingTimeClock(event_time);
-//                if (trialnum != curr_trial)
-//                {
-//                    startFaceImage(0);
-//                    curr_trial = trialnum;
-//                }
-//                logTestEvent(int(EVENT_SOUND_BEGIN), event_time);
-//                showTestStatus();
-//            }
-//            else if (event_code == EVENT_SOUND_END)
-//            {
-//                speakerSymbolOff(sound_position);
-//                stampLookingTimeClock(event_time);
-//                if (trials.item == trials.num_items)
-//                    stopFaceImage();
-//                logTestEvent(int(EVENT_SOUND_END), event_time);
-//                trials.items.timeref = event_time + TEST_ISI;
-//                trials.items.next_item();
-//            }
-//            else if (event_code == EVENT_TERMINATE || 
-//                    event_code == EVENT_ABORT)
-//                terminate;
-//            else
-//                test_handler.handle_event(event_code, event_time);
-//        }
-//
-//        Block trials
-//        {
-//            on_event:entry()
-//            {
-//                num_items = TEST_TRIALS;
-//            }
-//
-//            on_begin()
-//            {
-//                xyindex = (ppgroup == 1 || ppgroup == 3) ? 0 : 1;
-//            }
-//
-//            on_end()
-//            {
-//                test.end();
-//            }
-//
-//            on_pre_item()
-//            {
-//                logTestEventHeader();
-//
-//                trialnum = item + 1;
-//                stimnum = 0;
-//                lookingtime = 0;
-//
-//                audio.play_source = sound.out;
-//
-//                test_handler.enter();
-//            }
-//
-//            on_post_item()
-//            {
-//                stopLookingTimeClock(now());
-//                logTestData();
-//
-//                xyindex = 1 - xyindex;
-//
-//                test_handler.exit();
-//            }
-//
-//            Block items
-//            {
-//                time timeref;
-//
-//                on_init()
-//                {
-//                    num_items = MAX_STIMULI_PER_TRIAL;
-//                }
-//
-//                on_end()
-//                {
-//                    trials.next_item();
-//                }
-//
-//                on_pre_item()
-//                {
-//                    stimnum = item + 1;
-//
-//                    sound.file.file = data_dir() + stimlist[xyindex][5-1];
-//                    sound.start(timeref);
-//                }
-//            }
-//        }
-//
-//        void beginTrial(time t)
-//        {
-//            trials.items.timeref = t;
-//            trials.items.begin();
-//        }
-//
-//        void timedOut(time t)
-//        {
-//            stopFaceImage();
-//            speakerSymbolOff(sound_position);
-//            sound.abort();
-//            logTestEvent(int(EVENT_TIMEOUT), t);
-//            trials.items.end();
-//        }
-//    }
-//
-//
-//    // Post test
-//    //--------------------------------------------------------------------------
-//
-//    Part posttest
-//    {
-//        on_begin()
-//        {
-//            partname = "POST";
-//            posttest_handler.enter();
-//            showPrePostStatus();
-//        }
-//
-//        on_end()
-//        {
-//            stopLookingTimeClock(now());
-//            logPostTestData();
-//            showBasicStatus();
-//
-//            print("! pretest LT=" + format(int(pretest_lt)) + 
-//                    ", posttest LT=" + format(int(lookingtime)) + "\n");
-//            if (lookingtime < pretest_lt * (50.0 / 100.0))
-//                print("! Failed attention criterion.\n\n");
-//            else
-//                print("! Passed attention criterion.\n\n");
-//
-//            posttest_handler.exit();
-//        }
-//
-//        void handle_event(HvfEvent event)
-//        {
-//            if (event_code == EVENT_SOUND_BEGIN)
-//            {
-//                speakerSymbolOn(sound_position);
-//                stampLookingTimeClock(event_time);
-//                logPostTestEvent(int(EVENT_SOUND_BEGIN), event_time);
-//                showPrePostStatus();
-//            }
-//            else if (event_code == EVENT_SOUND_END)
-//            {
-//                speakerSymbolOff(sound_position);
-//                stampLookingTimeClock(event_time);
-//                logPostTestEvent(int(EVENT_SOUND_END), event_time);
-//                items.timeref = event_time + PRETEST_ISI;
-//                items.next_item();
-//            }
-//            else if (event_code == EVENT_TERMINATE || 
-//                    event_code == EVENT_MAIN_CLOSE || 
-//                    event_code == EVENT_ABORT)
-//                terminate;
-//            else
-//                posttest_handler.handle_event(event_code, event_time);
-//        }
-//
-//        Block items
-//        {
-//            time timeref;
-//
-//            on_init()
-//            {
-//                num_items = POSTTEST_STIMULI;
-//            }
-//
-//            on_begin()
-//            {
-//                logPostTestEventHeader();
-//            }
-//
-//            on_end()
-//            {
-//                posttest.end();
-//            }
-//
-//            on_pre_item()
-//            {
-//                stimnum = item + 1;
-//                sound.start(timeref);
-//            }
-//        }
-//
-//        void beginTrial(time t)
-//        {
-//            audio.play_source = sound.out;
-//            sound.file.file = data_dir() + posttest_beep;
-//            sound.file.set_scaling (BEEP_VOLUME);
-//
-//            items.timeref = t;
-//            items.begin();
-//        }
-//    }
+        on_event:exit()
+        {
+            save_output();
+        }
+            
+        on_event:entry()
+        {
+            attention_page.setup();
+
+            item_list = attention_items;
+
+            if (MAX_ATTENTION_TRIALS <= 0)
+                num_cycles = item_list.size;
+            else
+                num_cycles = MAX_ATTENTION_TRIALS;
+        }
+
+        Trial grab_attention
+        {
+            on_event:entry()
+            {
+                test_page.setup(item_list);
+                attention_page.setup();
+                attention_page.action(this, reference_time, TEST_ISI);
+                control.set_status("Test attention");
+            }
+        }
+
+        Trial trial
+        {
+            on_event:entry()
+            {
+                test_page.action(
+                        this,
+                        reference_time,
+                        test.cycle + 1
+                        );
+                control.set_status("Test " + string(test.cycle));
+            }
+            
+            on_event:exit()
+            {
+                TestOutput output;
+
+                output.trialnum = test.cycle + 1;
+                output.lt       = int(test_page.response.cumlt);
+                output.nlt      = int(test_page.response.cumnlt);
+                output.phase    = PHASE_ATTENTION;
+
+                output_append(output);
+            }
+        }
+    }
 }
 
 
