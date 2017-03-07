@@ -15,6 +15,8 @@ Experiment experiment
         // Show test windows and open button box.
         show_test_windows();
         control.button_box.open("/dev/ttyACM0");
+        // maximize ctrl_window
+        ctrl_window.is_maximized = true;
     }
 
     on_event:message()
