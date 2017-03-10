@@ -93,11 +93,11 @@ void shuffle_test_items()
 
 TestItem[..] attention_items =
 {
-    {1, ATTENTION, "bupoki1"},
-    {2, ATTENTION, "bupoki2"},
-    {3, ATTENTION, "bupoki3"},
-    {4, ATTENTION, "bupoki4"},
-    {5, ATTENTION, "bupoki5"}
+    {1, ATTENTION, "bupoki-final"},
+//    {2, ATTENTION, "bupoki2"},
+//    {3, ATTENTION, "bupoki3"},
+//    {4, ATTENTION, "bupoki4"},
+//    {5, ATTENTION, "bupoki5"}
 };
 
 string[..] video_frames = {
