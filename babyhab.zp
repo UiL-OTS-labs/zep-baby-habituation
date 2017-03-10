@@ -2,6 +2,7 @@
 
 import response_box; // import response_box before std_baby_windows_1
 import std_baby_windows1;
+import std_entry_page2;
 import std_exit_page2;
 import std_sound_playback;
 import test::hvf_event;
@@ -25,6 +26,16 @@ Experiment experiment
         {
             control.mark_experiment_aborted();
             thankyou.enter();
+        }
+    }
+
+    Part welcome
+    {
+        on_event:entry()
+        {
+            control.button_box.enable_all_buttons(CONTINUE);
+            entry_page.add_image(stimuli_dir() + "images/bal.png");
+            entry_page.action(this);
         }
     }
 
