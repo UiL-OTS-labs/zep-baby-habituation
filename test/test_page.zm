@@ -139,7 +139,7 @@ Page test_page
 
             on_event:init()
             {
-                size = 900,900;
+                size = 600,600;
                 offset_x = width/2;
                 offset_y = height/2;
 
@@ -344,6 +344,7 @@ Page test_page
         max_trial_dur_timer.abort();
         abort_trial_timer.abort();
         control.erase_clock();
+        control.hide_speaker_icon(FRONT_SIDE | LEFT_SIDE | RIGHT_SIDE);
     }
 
     void setup(TestItem[] items)
