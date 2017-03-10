@@ -255,14 +255,14 @@ Page control
                 copywin1.y = margin + border;
 
                 front_light_icon.offset_x = actual_width / 2;
-                front_light_icon.offset_y = 75;
+                front_light_icon.offset_y = 25; //75;
                 left_light_icon.offset_x = 75;
                 left_light_icon.offset_y = actual_height / 2;
                 right_light_icon.offset_x = actual_width - 75;
                 right_light_icon.offset_y = actual_height / 2;
 
                 front_speaker_icon.offset_x = front_light_icon.offset_x;
-                front_speaker_icon.offset_y = front_light_icon.offset_y + 80;
+                front_speaker_icon.offset_y = front_light_icon.offset_y;// + 80;
                 left_speaker_icon.offset_x = left_light_icon.offset_x;
                 left_speaker_icon.offset_y = left_light_icon.offset_y + 100;
                 right_speaker_icon.offset_x = right_light_icon.offset_x;
@@ -273,6 +273,8 @@ Page control
 
                 counter.offset_x = actual_width - 50;
                 counter.offset_y = 50;
+
+                attention_cross.handle_resize();
             }
 
 
@@ -424,6 +426,36 @@ Page control
                     hor_alignment = ALIGN_END;
                     line_pattern_color = CONTROL_COUNTER_COLOR;
                     is_visible = true;
+                }
+            }
+
+            CrossShape attention_cross
+            {
+                const color ATT_CROSS_COLOR = color:red;
+
+                on_event:init()
+                {
+                    line_pattern_color = ATT_CROSS_COLOR;
+                    line_width = 5;
+                    is_visible = false;
+                    radius = real(canvas.actual_height)/20.0;
+                    //x = 0;
+                    //y = 0;
+                    rotation = 0;
+                    println("radius = " + string(radius));
+                }
+
+                void handle_resize()
+                {
+                    // keep the cross in the lower left corner.
+                    radius = real(canvas.actual_height)/20.0;
+                    offset_x = radius * 2;
+                    offset_y = canvas.actual_height - radius * 2;
+                }
+
+                void inc_rotation()
+                {
+                    rotation = rotation + 2.0 * M_PI / 10.0;
                 }
             }
         }
@@ -1190,6 +1222,19 @@ Page control
         {
             layout.canvas.counter.text = 
                 string(int(duration + (expire_time - timeref)) / 100) + "00";
+            start(expected_expire_time + 100ms);
+        }
+    }
+
+    // Timer for the attention getter cross rotation
+    // Its handy to see the attention getter cross. It is rotating when
+    // the attention getter stimulus is active.
+    Timer att_cross_clock
+    {
+        on_event:expire()
+        {
+            // make the cross rotate about once each second.
+            layout.canvas.attention_cross.inc_rotation();
             start(expected_expire_time + 100ms);
         }
     }
@@ -2440,6 +2485,29 @@ Page control
         hide_light_icon(mask);
     }
 
+
+    //--------------------------------------------------------------------------
+
+    // Shows the attention grabber cross
+    void start_attention_grabber_cross()
+    {
+        layout.canvas.attention_cross.is_visible = true;
+    }
+
+    // Animate the attention grabber cross.
+    void animate_attention_grabber_cross(time t)
+    {
+        layout.canvas.attention_cross.inc_rotation();
+        att_cross_clock.start(t + 100ms);
+    }
+
+    // Clear the attention grabber cross
+    void clear_attention_grabber_cross()
+    {
+        att_cross_clock.abort();
+        layout.canvas.attention_cross.rotation = 0.0;
+        layout.canvas.attention_cross.is_visible = false;
+    }
 
     //--------------------------------------------------------------------------
 

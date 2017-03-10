@@ -23,6 +23,11 @@ Page attention_page
         response.process_hit(event_time, message_arg);
     }
 
+    on_event:show_start()
+    {
+        control.start_attention_grabber_cross();
+    }
+
     VerticalLayout layout {
 
         on_event:init()
@@ -120,8 +125,10 @@ Page attention_page
             {
                 if(event == EVENT_START_ATTENTION)
                 {
-                    if (!layout.canvas.is_playing())
+                    if (!layout.canvas.is_playing()) {
                         layout.start_playing(t);
+                        control.animate_attention_grabber_cross(t);
+                    }
                 }
                 else if (event == EVENT_START_LOOKING) {
                     if (layout.canvas.is_playing())
@@ -129,6 +136,8 @@ Page attention_page
                 }
             }
         }
+
+
     }
 
     void done(int msg)
@@ -136,6 +145,7 @@ Page attention_page
         signal_target(msg);
         layout.stop_playing();
         response.abort();
+        control.clear_attention_grabber_cross();
     }
 
     void setup()
