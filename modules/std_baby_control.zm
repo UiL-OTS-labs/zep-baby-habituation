@@ -442,7 +442,6 @@ Page control
                     //x = 0;
                     //y = 0;
                     rotation = 0;
-                    println("radius = " + string(radius));
                 }
 
                 void handle_resize()
