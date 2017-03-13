@@ -66,6 +66,7 @@ Page test_page
         dur     cumlt;
         dur     cumnlt;
         int     nlookaways;
+        int     nlooks;
 
         on_event:start()
         {
@@ -83,6 +84,8 @@ Page test_page
             cumlt       = 0ms;
             cumnlt      = 0ms;
             nlookaways  = 0;
+            nlooks      = 1; // The infant is always looking at the start
+                             // of the trial.
         }
 
         void process_hit(time t, int event)
@@ -111,6 +114,7 @@ Page test_page
 
                     control.start_clock(t);
                     abort_trial_timer.abort();
+                    nlooks++;
                 }
                 else if (event == EVENT_STOP_TIMER) {
                     if (is_looking)

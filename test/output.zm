@@ -10,7 +10,7 @@ enum exp_phase {
 
 
 /**
- * output this output can be displayed without loosing double 
+ * Describes the output of the phase.
  */
 record TestOutput
 {
@@ -19,7 +19,9 @@ record TestOutput
 //    int     id;         // id's change stimulus after stimulus.
     int     lt;         // looking time(ms)
     int     nlt;        // time spend not looking.
+    int     looks;      // number of time a child looks to the stimulus.
     int     lookaways;  // number of time a child looked away.
+    bool    crit_met;   // is the habituation criterion met.
 }
 
 record StimOutput
