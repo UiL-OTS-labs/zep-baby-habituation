@@ -59,7 +59,6 @@ Block task
                 test_page.setup(item_list);
                 attention_page.setup();
                 attention_page.action(this, reference_time, 0ms);
-                control.set_status("Habituation attention");
             }
         }
 
@@ -73,7 +72,6 @@ Block task
                         reference_time,
                         habituation.cycle + 1
                         );
-                control.set_status("Habituation trial" + string(cycle));
             }
             
             on_event:exit()
@@ -89,7 +87,7 @@ Block task
 
                 output_append(output);
                 if (habituation_done()) {
-                    /* Update last appended stimulus. since the
+                    /* Update last appended stimulus. Since the
                      * criterion was met there.
                      */
                     test_output[test_output.size-1].crit_met = true;
@@ -137,7 +135,6 @@ Block task
                 test_page.setup(item_list);
                 attention_page.setup();
                 attention_page.action(this, reference_time, 0ms);
-                control.set_status("Test attention");
             }
         }
 
@@ -151,7 +148,6 @@ Block task
                         reference_time,
                         test.cycle + 1
                         );
-                control.set_status("Test " + string(test.cycle));
             }
             
             on_event:exit()
@@ -202,7 +198,6 @@ Block task
                 test_page.setup(item_list);
                 attention_page.setup();
                 attention_page.action(this, reference_time, 0ms);
-                control.set_status("Test attention");
             }
         }
 
@@ -215,7 +210,6 @@ Block task
                         reference_time,
                         test.cycle + 1
                         );
-                control.set_status("Infant attention: " + string(test.cycle));
             }
             
             on_event:exit()

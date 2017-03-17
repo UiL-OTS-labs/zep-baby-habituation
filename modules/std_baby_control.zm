@@ -222,20 +222,23 @@ Page control
             min_width = 700;
             min_height = 600;
 
-            partnames.size = 6;
+            // only enable part 1
+            // The experimenter shouldn't see where in the experiment the 
+            // Infant is.
+            partnames.size = 1;//6;
             partnames[0] = info2.state1lab;
-            partnames[1] = info2.state2lab;
-            partnames[2] = info2.state3lab;
-            partnames[3] = info2.state4lab;
-            partnames[4] = info2.state5lab;
-            partnames[5] = info2.state6lab;
-            partvalues.size = 6;
-            partvalues[0] = info2.state1;
-            partvalues[1] = info2.state2;
-            partvalues[2] = info2.state3;
-            partvalues[3] = info2.state4;
-            partvalues[4] = info2.state5;
-            partvalues[5] = info2.state6;
+            //partnames[1] = info2.state2lab;
+            //partnames[2] = info2.state3lab;
+            //partnames[3] = info2.state4lab;
+            //partnames[4] = info2.state5lab;
+            //partnames[5] = info2.state6lab;
+            partvalues.size = 0;//6;
+            //partvalues[0] = info2.state1;
+            //partvalues[1] = info2.state2;
+            //partvalues[2] = info2.state3;
+            //partvalues[3] = info2.state4;
+            //partvalues[4] = info2.state5;
+            //partvalues[5] = info2.state6;
         }
 
 
@@ -1129,18 +1132,21 @@ Page control
             if (ncycles > 1)
             {
                 layout.partnames[n].text = experiment.level_part_name(m) + ":";
-                layout.partvalues[n].text = 
-                    string(cycle+1) + "/" + string(ncycles);
+                if (n < layout.partvalues.size)
+                    layout.partvalues[n].text = 
+                        string(cycle+1) + "/" + string(ncycles);
             }
             else if (ncycles < 0)
             {
                 layout.partnames[n].text = experiment.level_part_name(m) + ":";
-                layout.partvalues[n].text = string(cycle+1);
+                if (n < layout.partvalues.size)
+                    layout.partvalues[n].text = string(cycle+1);
             }
             else
             {
                 layout.partnames[n].text = experiment.level_part_name(m);
-                layout.partvalues[n].text = "";
+                if (n < layout.partvalues.size)
+                    layout.partvalues[n].text = "";
             }
 	    n++;
 	    m++;
@@ -1195,7 +1201,8 @@ Page control
         while (n < nlabels)
         {
             layout.partnames[n].text = "";
-            layout.partvalues[n].text = "";
+            if (n < layout.partvalues.size)
+                layout.partvalues[n].text = "";
             n++;
         }
     }
