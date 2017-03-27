@@ -58,8 +58,10 @@ Experiment experiment
             sesid = expdb.experiment.session.id;
 
             control.end_experiment();   // Check-in session.
+
+            // Disable buttons because a experimenter might accidentally
+            // press the thankyou away.
             control.button_box.disable_buttons();
-            control.button_box.enable_all_buttons(CONTINUE);
 
             exit_page.add_image(stimuli_dir() + "images/giraf.png");
             exit_page.add_image(stimuli_dir() + "images/bal.png");
