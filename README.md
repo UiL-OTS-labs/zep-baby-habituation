@@ -27,6 +27,6 @@ One trial is presented with a completely deviant stimulus. Generally it is
 expected that a attentive baby will exhibit an increase in looking time,
 since a novel stimulus is interesting.
 
-#finish
+## finish
 The experiment finishes after a happy song is played along with some infant
 friendly pictures.
