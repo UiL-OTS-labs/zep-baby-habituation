@@ -227,16 +227,16 @@ Page control
             // only enable part 1
             // The experimenter shouldn't see where in the experiment the
             // Infant is.
-            partnames.size = 1;//6;
+            partnames.size = 2;//6;
             partnames[0] = info2.state1lab;
-            //partnames[1] = info2.state2lab;
+            partnames[1] = info2.state2lab;
             //partnames[2] = info2.state3lab;
             //partnames[3] = info2.state4lab;
             //partnames[4] = info2.state5lab;
             //partnames[5] = info2.state6lab;
-            partvalues.size = 0;//6;
-            //partvalues[0] = info2.state1;
-            //partvalues[1] = info2.state2;
+            partvalues.size = 2;//6;
+            partvalues[0] = info2.state1;
+            partvalues[1] = info2.state2;
             //partvalues[2] = info2.state3;
             //partvalues[3] = info2.state4;
             //partvalues[4] = info2.state5;
