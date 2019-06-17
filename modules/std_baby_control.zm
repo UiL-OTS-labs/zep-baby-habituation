@@ -126,6 +126,8 @@ Page control
     KeyCodeMapping[..] keymap;  // key to code mappings
     KeyCodeMapping[..] btnmap;  // button to code mappings
 
+    int         current_trial;  // The current trial in the experiment.
+
 
     post_init()
     {
@@ -246,7 +248,11 @@ Page control
         {
             init()
             {
-                fill_pattern_color = CONTROL_CANVAS_COLOR;
+                //original.
+                //fill_pattern_color = CONTROL_CANVAS_COLOR;
+
+                // to work with OBS recording make it blue (it's a blue screen)
+                fill_pattern_color = color:blue;
             }
 
 
@@ -258,24 +264,33 @@ Page control
                 copywin1.y = margin + border;
 
                 front_light_icon.offset_x = actual_width / 2;
-                front_light_icon.offset_y = 25; //75;
+                front_light_icon.offset_y = 25;
                 left_light_icon.offset_x = 75;
                 left_light_icon.offset_y = actual_height / 2;
                 right_light_icon.offset_x = actual_width - 75;
                 right_light_icon.offset_y = actual_height / 2;
 
                 front_speaker_icon.offset_x = front_light_icon.offset_x;
-                front_speaker_icon.offset_y = front_light_icon.offset_y;// + 80;
+                front_speaker_icon.offset_y = front_light_icon.offset_y;
                 left_speaker_icon.offset_x = left_light_icon.offset_x;
                 left_speaker_icon.offset_y = left_light_icon.offset_y + 100;
                 right_speaker_icon.offset_x = right_light_icon.offset_x;
                 right_speaker_icon.offset_y = right_light_icon.offset_y + 100;
 
                 counter_active.offset_x = actual_width / 4 * 3;
-                counter_active.offset_y = front_light_icon.offset_y;
+                counter_active.offset_y = 75;
 
                 counter.offset_x = actual_width - 50;
                 counter.offset_y = 50;
+
+                counter_background.width =
+                        counter.offset_x - counter_active.offset_x +
+                        (counter_active.radius * 2) + 5;
+                counter_background.height = counter.line_height;
+
+                counter_background.offset_x =
+                        counter_active.offset_x - counter_active.radius - 5;
+                counter_background.offset_y = counter.offset_y;
 
                 attention_cross.handle_resize();
             }
@@ -409,6 +424,14 @@ Page control
                 }
             }
 
+            RectangleShape counter_background
+            {
+                init()
+                {
+                    corner_radius = 10;
+                    fill_pattern_color = color:black;
+                }
+            }
 
             CircleShape counter_active
             {
@@ -1119,78 +1142,11 @@ Page control
 
     void show_state_info()
     {
-    	// Show where we are in main "experiment" object.
-        int nlabels = layout.partnames.size;
-        int nlevels = experiment.num_levels;
-        int n;
-        int m = 1;
-        while (n < nlabels)
-	{
-	    if (m >= nlevels) break;
-            int ncycles = experiment.level_num_cycles(m-1);
-            int cycle = experiment.level_cycle(m-1);
-            if (ncycles > 1)
-            {
-                layout.partnames[n].text = experiment.level_part_name(m) + ":";
-                if (n < layout.partvalues.size)
-                    layout.partvalues[n].text =
-                        string(cycle+1) + "/" + string(ncycles);
-            }
-            else if (ncycles < 0)
-            {
-                layout.partnames[n].text = experiment.level_part_name(m) + ":";
-                if (n < layout.partvalues.size)
-                    layout.partvalues[n].text = string(cycle+1);
-            }
-            else
-            {
-                layout.partnames[n].text = experiment.level_part_name(m);
-                if (n < layout.partvalues.size)
-                    layout.partvalues[n].text = "";
-            }
-	    n++;
-	    m++;
-	}
+        // Display the phase so that you can see
+        layout.partnames[0].text = experiment.level_part_name(1);
+        layout.partnames[1].text = "trial";
 
-    	// Also show where we are in the current sub-experiment if defined.
-	PartList subexp = experiment.connected;
-    	if (subexp != null)
-	{
-            nlevels = subexp.num_levels;
-            m = 1;
-            while (n < nlabels)
-	    {
-		if (m >= nlevels) break;
-        	int ncycles = subexp.level_num_cycles(m-1);
-        	int cycle = subexp.level_cycle(m-1);
-        	if (ncycles > 1)
-        	{
-                    layout.partnames[n].text = subexp.level_part_name(m) + ":";
-                    layout.partvalues[n].text =
-                	string(cycle+1) + "/" + string(ncycles);
-        	}
-        	else if (ncycles < 0)
-        	{
-                    layout.partnames[n].text = subexp.level_part_name(m) + ":";
-                    layout.partvalues[n].text = string(cycle+1);
-        	}
-        	else
-        	{
-                    layout.partnames[n].text = subexp.level_part_name(m);
-                    layout.partvalues[n].text = "";
-        	}
-		n++;
-		m++;
-	    }
-	}
-
-        // Clear remaining labels.
-        while (n < nlabels)
-        {
-            layout.partnames[n].text = "";
-            layout.partvalues[n].text = "";
-            n++;
-        }
+        layout.partvalues[1].text = string(current_trial);
     }
 
 
@@ -2345,6 +2301,7 @@ Page control
         clock.duration = 0s;
         clock.total_runtime = 0s;
         layout.canvas.counter.text = "0";
+        layout.canvas.counter_background.is_visible = true;
         hide_counter_active();
     }
 
@@ -2387,6 +2344,7 @@ Page control
         clock.state = CLOCK_IDLE;
         clock.released = false;
         layout.canvas.counter.text = "";
+        layout.canvas.counter_background.is_visible = false;
         hide_counter_active();
     }
 
@@ -2548,5 +2506,12 @@ Page control
     void disable_keys()
     {
         keymap.size = 0;
+    }
+
+
+    void set_current_trial(int n)
+    {
+        current_trial = n;
+        show_state_info();
     }
 }
