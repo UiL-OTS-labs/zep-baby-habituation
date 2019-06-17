@@ -27,8 +27,8 @@ SoundPlaybackDevice sound_output_device
         num_channels = 4;
         samplerate = PLAYBACK_SAMPLE_RATE;
         buffer_size = PLAYBACK_BUFFER_SIZE;
-        //device_num = 0;
-        device_num = 1;
+        device_num = 0;
+        //device_num = 2; // change back to 0 in babylab
 
         if (open() != 0) terminate;
     }
